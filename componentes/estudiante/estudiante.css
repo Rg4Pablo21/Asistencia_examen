@@ -1,0 +1,78 @@
+/* Estilos generales */
+.asistencia-container {
+  max-width: 1024px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #1e1e1e;
+  color: white;
+  border: 2px solid #00c3ff;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.08);
+}
+
+.asistencia-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tabla-estudiantes {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.tabla-estudiantes th,
+.tabla-estudiantes td {
+  padding: 10px;
+  border: 1px solid #444;
+  text-align: center;
+  background-color: #2a2a2a;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: #2a2a2a;
+  border: 1px solid #666;
+  color: white;
+  font-size: 14px;
+}
+
+.asistencia-botones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-check,
+.btn-x {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-check:hover {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-x:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-check.activo {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-x.activo {
+  background-color: #dc3545;
+  color: white;
+}
