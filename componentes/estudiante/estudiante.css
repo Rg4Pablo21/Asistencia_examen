@@ -15,6 +15,26 @@
   margin-bottom: 20px;
 }
 
+.btn-guardar {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: #00c3ff;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-guardar:hover {
+  background-color: #009fcc;
+}
+
+
 .tabla-estudiantes {
   width: 100%;
   border-collapse: collapse;

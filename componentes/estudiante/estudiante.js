@@ -72,5 +72,32 @@ export function cargarEstudiantes() {
 
   tabla.append(thead, tbody);
   container.appendChild(tabla);
+
+  // BOTÓN GUARDAR ASISTENCIA
+  const btnGuardar = document.createElement("button");
+  btnGuardar.textContent = "Guardar Asistencia";
+  btnGuardar.classList.add("btn-guardar");
+  btnGuardar.addEventListener("click", () => {
+    const filas = tbody.querySelectorAll("tr");
+    const resultado = [];
+
+    filas.forEach(fila => {
+      const nombre = fila.children[1].textContent;
+      const check = fila.querySelector(".btn-check").classList.contains("activo");
+      const x = fila.querySelector(".btn-x").classList.contains("activo");
+      const motivo = fila.querySelector("textarea").value;
+
+      resultado.push({
+        nombre,
+        asistencia: check ? "Presente" : x ? "Ausente" : "Sin marcar",
+        motivo: motivo.trim()
+      });
+    });
+
+    console.log("Resultado de asistencia:", resultado);
+    alert("Asistencia guardada en consola (puedes conectarlo con localStorage o backend)");
+  });
+
+  container.appendChild(btnGuardar);
   root.appendChild(container);
 }
