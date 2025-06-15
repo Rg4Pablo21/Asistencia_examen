@@ -73,7 +73,24 @@ export function cargarEstudiantes() {
   tabla.append(thead, tbody);
   container.appendChild(tabla);
 
-  // BOTÓN GUARDAR ASISTENCIA
+  // Contenedor para los botones (esquina superior derecha)
+  const botonesContainer = document.createElement("div");
+  botonesContainer.classList.add("botones-container");
+
+  // Botón Marcar todos presentes
+  const btnTodos = document.createElement("button");
+  btnTodos.textContent = "Marcar todos presentes";
+  btnTodos.classList.add("btn-todos");
+  btnTodos.addEventListener("click", () => {
+    tbody.querySelectorAll("tr").forEach(fila => {
+      const btnCheck = fila.querySelector(".btn-check");
+      const btnX = fila.querySelector(".btn-x");
+      btnCheck.classList.add("activo");
+      btnX.classList.remove("activo");
+    });
+  });
+
+  // Botón Guardar Asistencia
   const btnGuardar = document.createElement("button");
   btnGuardar.textContent = "Guardar Asistencia";
   btnGuardar.classList.add("btn-guardar");
@@ -98,6 +115,7 @@ export function cargarEstudiantes() {
     alert("Asistencia guardada en consola (puedes conectarlo con localStorage o backend)");
   });
 
-  container.appendChild(btnGuardar);
+  botonesContainer.append(btnTodos, btnGuardar);
+  container.appendChild(botonesContainer);
   root.appendChild(container);
 }
