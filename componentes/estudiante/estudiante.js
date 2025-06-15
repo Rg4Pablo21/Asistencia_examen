@@ -56,14 +56,22 @@ export function cargarEstudiantes() {
     inputMotivo.placeholder = "Escribe el motivo...";
     celdaMotivo.appendChild(inputMotivo);
 
+    const id_alumno = index + 1;  // Suponiendo que el índice es el ID del alumno (en la práctica, debes tener el ID real de cada alumno)
+
     btnCheck.addEventListener("click", () => {
       btnCheck.classList.add("activo");
       btnX.classList.remove("activo");
+      const estado = "Presente";
+      const motivo = inputMotivo.value.trim();
+      guardarAsistencia(id_alumno, estado, motivo);
     });
 
     btnX.addEventListener("click", () => {
       btnX.classList.add("activo");
       btnCheck.classList.remove("activo");
+      const estado = "Ausente";
+      const motivo = inputMotivo.value.trim();
+      guardarAsistencia(id_alumno, estado, motivo);
     });
 
     fila.append(celdaNum, celdaNombre, celdaAsistencia, celdaMotivo);
@@ -73,49 +81,24 @@ export function cargarEstudiantes() {
   tabla.append(thead, tbody);
   container.appendChild(tabla);
 
-  // Contenedor para los botones (esquina superior derecha)
-  const botonesContainer = document.createElement("div");
-  botonesContainer.classList.add("botones-container");
-
-  // Botón Marcar todos presentes
-  const btnTodos = document.createElement("button");
-  btnTodos.textContent = "Marcar todos presentes";
-  btnTodos.classList.add("btn-todos");
-  btnTodos.addEventListener("click", () => {
-    tbody.querySelectorAll("tr").forEach(fila => {
-      const btnCheck = fila.querySelector(".btn-check");
-      const btnX = fila.querySelector(".btn-x");
-      btnCheck.classList.add("activo");
-      btnX.classList.remove("activo");
-    });
-  });
-
-  // Botón Guardar Asistencia
+  // BOTÓN GUARDAR ASISTENCIA
   const btnGuardar = document.createElement("button");
   btnGuardar.textContent = "Guardar Asistencia";
   btnGuardar.classList.add("btn-guardar");
   btnGuardar.addEventListener("click", () => {
-    const filas = tbody.querySelectorAll("tr");
-    const resultado = [];
-
-    filas.forEach(fila => {
-      const nombre = fila.children[1].textContent;
-      const check = fila.querySelector(".btn-check").classList.contains("activo");
-      const x = fila.querySelector(".btn-x").classList.contains("activo");
-      const motivo = fila.querySelector("textarea").value;
-
-      resultado.push({
-        nombre,
-        asistencia: check ? "Presente" : x ? "Ausente" : "Sin marcar",
-        motivo: motivo.trim()
-      });
-    });
-
-    console.log("Resultado de asistencia:", resultado);
-    alert("Asistencia guardada en consola (puedes conectarlo con localStorage o backend)");
+    alert("Asistencia guardada (esto está automatizado en los botones de presencia y ausencia).");
   });
 
-  botonesContainer.append(btnTodos, btnGuardar);
-  container.appendChild(botonesContainer);
+  container.appendChild(btnGuardar);
   root.appendChild(container);
+}
+
+function guardarAsistencia(id_alumno, estado, motivo) {
+  let asistencias = JSON.parse(localStorage.getItem("asistencias")) || {};
+
+  asistencias[id_alumno] = { estado, motivo };
+
+  localStorage.setItem("asistencias", JSON.stringify(asistencias));
+
+  console.log(`Asistencia guardada para el alumno ${id_alumno}: ${estado}`);
 }
