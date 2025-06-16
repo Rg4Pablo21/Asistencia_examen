@@ -13,33 +13,7 @@ export function cargarEstudiantes() {
   const btnAgregar = document.createElement("button");
   btnAgregar.className = "btn-agregar";
   btnAgregar.textContent = "➕ Añadir Alumno";
-  btnAgregar.onclick = () => {
-    const nombre = prompt("Ingrese el nombre del nuevo alumno:");
-    if (nombre && nombre.trim() !== "") {
-      // Obtener estudiantes actuales de localStorage o usar array inicial
-      const estudiantesGuardados = JSON.parse(localStorage.getItem("estudiantes")) || [
-        { nombre: "Carlos Pérez" },
-        { nombre: "Ana López" },
-        { nombre: "Luis Gómez" },
-        { nombre: "María Torres" },
-        { nombre: "Pedro Martínez" },
-        { nombre: "Sofía Ramírez" },
-        { nombre: "Diego Hernández" },
-        { nombre: "Valeria Ruiz" },
-        { nombre: "Javier Castro" },
-        { nombre: "Lucía Morales" }
-      ];
-      
-      // Añadir nuevo alumno
-      estudiantesGuardados.push({ nombre: nombre.trim() });
-      
-      // Guardar en localStorage
-      localStorage.setItem("estudiantes", JSON.stringify(estudiantesGuardados));
-      
-      // Recargar la lista
-      cargarEstudiantes();
-    }
-  };
+  btnAgregar.onclick = agregarAlumno;
   cont.appendChild(btnAgregar);
 
   const tabla = document.createElement("table");
@@ -50,12 +24,13 @@ export function cargarEstudiantes() {
         <th>#</th>
         <th>Nombre</th>
         <th>Asistencia</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody></tbody>`;
   const tbody = tabla.querySelector("tbody");
 
-  // Obtener estudiantes de localStorage o usar array inicial
+  // Obtener estudiantes de localStorage o array inicial
   const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [
     { nombre: "Carlos Pérez" },
     { nombre: "Ana López" },
@@ -75,12 +50,15 @@ export function cargarEstudiantes() {
   estudiantes.forEach((estudiante, i) => {
     const tr = document.createElement("tr");
 
+    // Número
     const tdNum = document.createElement("td");
     tdNum.textContent = i + 1;
 
+    // Nombre
     const tdNom = document.createElement("td");
     tdNom.textContent = estudiante.nombre;
 
+    // Botones de asistencia
     const tdBtns = document.createElement("td");
     tdBtns.className = "asistencia-botones";
 
@@ -100,12 +78,19 @@ export function cargarEstudiantes() {
 
     tdBtns.append(bOk, bNo, bUni, bCorreo);
 
-    tr.append(tdNum, tdNom, tdBtns);
+    // Botón eliminar
+    const tdAcciones = document.createElement("td");
+    const btnEliminar = crearBtn("🗑️", "btn-eliminar");
+    btnEliminar.onclick = () => eliminarAlumno(estudiante.nombre);
+    tdAcciones.appendChild(btnEliminar);
+
+    tr.append(tdNum, tdNom, tdBtns, tdAcciones);
     tbody.appendChild(tr);
   });
 
   cont.appendChild(tabla);
 
+  // Barra de botones inferiores
   const barra = document.createElement("div");
   barra.className = "botones-container";
 
@@ -113,16 +98,15 @@ export function cargarEstudiantes() {
   const bTodosNo = crearBtnTexto("Marcar Todos Ausentes");
   const bGuardar = crearBtnTexto("Guardar Asistencia", "btn-guardar");
 
-  bTodosOk.onclick = () =>
-    document.querySelectorAll(".btn-check").forEach((b) => b.click());
-  bTodosNo.onclick = () =>
-    document.querySelectorAll(".btn-x").forEach((b) => b.click());
+  bTodosOk.onclick = () => document.querySelectorAll(".btn-check").forEach(b => b.click());
+  bTodosNo.onclick = () => document.querySelectorAll(".btn-x").forEach(b => b.click());
   bGuardar.onclick = () => alert("Asistencia guardada (demo)");
 
   barra.append(bTodosOk, bTodosNo, bGuardar);
   cont.appendChild(barra);
   root.appendChild(cont);
 
+  // Funciones auxiliares
   function crearBtn(txt, cls) {
     const b = document.createElement("button");
     b.textContent = txt;
@@ -140,6 +124,36 @@ export function cargarEstudiantes() {
   function marcar(act, inac) {
     act.classList.add("activo");
     inac.classList.remove("activo");
+  }
+
+  function agregarAlumno() {
+    const nombre = prompt("Ingrese el nombre del nuevo alumno:");
+    if (nombre && nombre.trim() !== "") {
+      const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+      estudiantes.push({ nombre: nombre.trim() });
+      localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
+      cargarEstudiantes();
+    }
+  }
+
+  function eliminarAlumno(nombre) {
+    if (confirm(`¿Estás seguro de eliminar a ${nombre}?`)) {
+      // Eliminar de estudiantes
+      let estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+      estudiantes = estudiantes.filter(est => est.nombre !== nombre);
+      localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
+      
+      // Eliminar datos relacionados
+      const motivos = JSON.parse(localStorage.getItem("motivos") || "{}");
+      delete motivos[nombre];
+      localStorage.setItem("motivos", JSON.stringify(motivos));
+      
+      const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
+      delete uniformes[nombre];
+      localStorage.setItem("uniformes", JSON.stringify(uniformes));
+      
+      cargarEstudiantes();
+    }
   }
 
   function abrirMotivo(nombre) {
@@ -243,7 +257,7 @@ function cargarUniforme(nombreAlumno) {
     localStorage.setItem("uniformes", JSON.stringify(data));
     cargarEstudiantes();
   };
-  
+
   const btnVolver = document.createElement("button");
   btnVolver.textContent = "Volver";
   btnVolver.onclick = cargarEstudiantes;
