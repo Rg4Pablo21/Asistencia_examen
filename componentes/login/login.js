@@ -47,7 +47,7 @@ export function cargarLogin() {
   btnForgot.addEventListener("click", cargarRecuperarClave);
 }
 
-// ----------------------- Lógica sin servidor -----------------------
+// ----------------------- Lógica CON backend -----------------------
 function login() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
@@ -57,9 +57,33 @@ function login() {
     return;
   }
 
-  // Simulación de login sin servidor
-  localStorage.setItem("token", "demo-token-" + Date.now());
-  cargarMainApp();
+  fetch("http://localhost:3000/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      correo: email,
+      contraseña: password
+    })
+  })
+    .then(res => {
+      if (!res.ok) throw res;
+      return res.json();
+    })
+    .then(data => {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("nombre", data.nombre);
+      cargarMainApp();
+    })
+    .catch(async err => {
+      let msg = "Error al iniciar sesión";
+      if (err.json) {
+        const errData = await err.json();
+        msg = errData.mensaje || msg;
+      }
+      showError(msg);
+    });
 }
 
 function showError(msg) {
