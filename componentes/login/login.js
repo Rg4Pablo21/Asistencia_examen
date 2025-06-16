@@ -50,7 +50,7 @@ export function cargarLogin() {
   // Listeners
   btnLogin.addEventListener("click", login);
   btnForgot.addEventListener("click", cargarRecuperarClave);
-  btnRegister.addEventListener("click", cargarRegistro);  // Nuevo listener para registro
+  btnRegister.addEventListener("click", cargarRegistro);
 }
 
 // ----------------------- Lógica sin servidor -----------------------
@@ -74,7 +74,7 @@ function showError(msg) {
   p.classList.remove("hidden");
 }
 
-/* ---------- Recuperar contraseña (simulada) ---------- */
+/* ---------- Recuperar contraseña (con campo de correo) ---------- */
 function cargarRecuperarClave(e) {
   e.preventDefault();
   const root = document.getElementById("root");
@@ -89,13 +89,21 @@ function cargarRecuperarClave(e) {
   const title = document.createElement("h2");
   title.textContent = "Restablecer contraseña";
 
+  // Campo de correo electrónico
+  const emailInput = document.createElement("input");
+  emailInput.type = "email";
+  emailInput.placeholder = "Correo electrónico";
+  emailInput.id = "recoveryEmail";
+
   const pass1 = document.createElement("input");
   pass1.type = "password";
   pass1.placeholder = "Nueva contraseña";
+  pass1.id = "recoveryPass1";
 
   const pass2 = document.createElement("input");
   pass2.type = "password";
   pass2.placeholder = "Repite la contraseña";
+  pass2.id = "recoveryPass2";
 
   const btn = document.createElement("button");
   btn.textContent = "Restablecer";
@@ -104,17 +112,28 @@ function cargarRecuperarClave(e) {
   back.textContent = "Volver";
   back.style.marginTop = "8px";
 
-  box.append(title, pass1, pass2, btn, back);
+  box.append(title, emailInput, pass1, pass2, btn, back);
   container.appendChild(box);
   root.appendChild(container);
 
   back.addEventListener("click", cargarLogin);
+
   btn.addEventListener("click", () => {
-    if (pass1.value !== pass2.value || !pass1.value) {
+    const email = emailInput.value.trim();
+    const p1 = pass1.value.trim();
+    const p2 = pass2.value.trim();
+
+    if (!email || !p1 || !p2) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    if (p1 !== p2) {
       alert("Las contraseñas no coinciden");
       return;
     }
-    alert("Contraseña cambiada (demo)");
+
+    alert("Se enviará una solicitud de cambio al correo: " + email);
     cargarLogin();
   });
 }
@@ -174,13 +193,12 @@ function cargarRegistro(e) {
       return;
     }
 
-    // Enviar los datos de registro al servidor (requiere una API que reciba estos datos)
     const user = {
       email: emailValue,
       password: passValue,
     };
 
-    fetch("http://localhost:3000/api/register", { // Cambia esta URL a la de tu API
+    fetch("http://localhost:3000/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
