@@ -72,7 +72,7 @@ function login() {
     },
     body: JSON.stringify({
       correo: email,
-      contraseña: password
+      password: password
     })
   })
     .then(res => {
@@ -81,7 +81,7 @@ function login() {
     })
     .then(data => {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("nombre", data.nombre);
+      localStorage.setItem("nombre", data.user.nombre);
       cargarMainApp();
     })
     .catch(async err => {
@@ -116,29 +116,31 @@ function cargarRecuperarClave(e) {
   title.textContent = "Restablecer contraseña";
 
   const email = crearInput("email", "Correo electrónico", "recoveryEmail");
-  const pass1 = crearInput("password", "Nueva contraseña", "recoveryPass1");
-  const pass2 = crearInput("password", "Repite la contraseña", "recoveryPass2");
-
-  const btn = crearBoton("Restablecer");
+  const btn = crearBoton("Enviar correo");
   const back = crearBoton("Volver");
   back.style.marginTop = "8px";
 
-  box.append(title, email, pass1, pass2, btn, back);
+  box.append(title, email, btn, back);
   container.appendChild(box);
   root.appendChild(container);
 
   back.addEventListener("click", cargarLogin);
 
   btn.addEventListener("click", () => {
-    const emailValue = email.value.trim();
-    const p1 = pass1.value.trim();
-    const p2 = pass2.value.trim();
+    const correo = email.value.trim();
+    if (!correo) return alert("Ingresa tu correo");
 
-    if (!emailValue || !p1 || !p2) return alert("Por favor completa todos los campos");
-    if (p1 !== p2) return alert("Las contraseñas no coinciden");
-
-    alert("Se enviará una solicitud de cambio al correo: " + emailValue);
-    cargarLogin();
+    fetch("http://localhost:3000/recover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ correo })
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert("Revisa tu correo para la nueva contraseña");
+        cargarLogin();
+      })
+      .catch(err => alert("Error al enviar solicitud: " + err.message));
   });
 }
 
@@ -180,9 +182,13 @@ function cargarRegistro(e) {
     if (passValue !== passConfirm)
       return alert("Las contraseñas no coinciden");
 
-    const user = { email: emailValue, password: passValue };
+    const user = {
+      nombre: emailValue.split("@")[0],
+      correo: emailValue,
+      password: passValue
+    };
 
-    fetch("http://localhost:3000/api/register", {
+    fetch("http://localhost:3000/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
