@@ -256,3 +256,21 @@ textarea {
 .motivo-container button:hover {
   background: #009fcc;
 }
+
+/* ---------- BOTÓN ELIMINAR ---------- */
+.btn-eliminar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+  font-size: 18px;
+  transition: background .2s;
+}
+
+.btn-eliminar:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
+}
