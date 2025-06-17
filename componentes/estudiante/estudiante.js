@@ -30,7 +30,6 @@ export function cargarEstudiantes() {
     <tbody></tbody>`;
   const tbody = tabla.querySelector("tbody");
 
-  // Obtener estudiantes de localStorage o array inicial
   const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [
     { nombre: "Carlos Pérez" },
     { nombre: "Ana López" },
@@ -50,15 +49,12 @@ export function cargarEstudiantes() {
   estudiantes.forEach((estudiante, i) => {
     const tr = document.createElement("tr");
 
-    // Número
     const tdNum = document.createElement("td");
     tdNum.textContent = i + 1;
 
-    // Nombre
     const tdNom = document.createElement("td");
     tdNom.textContent = estudiante.nombre;
 
-    // Botones de asistencia
     const tdBtns = document.createElement("td");
     tdBtns.className = "asistencia-botones";
 
@@ -78,7 +74,6 @@ export function cargarEstudiantes() {
 
     tdBtns.append(bOk, bNo, bUni, bCorreo);
 
-    // Botón eliminar
     const tdAcciones = document.createElement("td");
     const btnEliminar = crearBtn("🗑️", "btn-eliminar");
     btnEliminar.onclick = () => eliminarAlumno(estudiante.nombre);
@@ -90,7 +85,6 @@ export function cargarEstudiantes() {
 
   cont.appendChild(tabla);
 
-  // Barra de botones inferiores
   const barra = document.createElement("div");
   barra.className = "botones-container";
 
@@ -100,13 +94,12 @@ export function cargarEstudiantes() {
 
   bTodosOk.onclick = () => document.querySelectorAll(".btn-check").forEach(b => b.click());
   bTodosNo.onclick = () => document.querySelectorAll(".btn-x").forEach(b => b.click());
-  bGuardar.onclick = () => alert("Asistencia guardada (demo)");
+  bGuardar.onclick = () => guardarAsistenciasBackend();
 
   barra.append(bTodosOk, bTodosNo, bGuardar);
   cont.appendChild(barra);
   root.appendChild(cont);
 
-  // Funciones auxiliares
   function crearBtn(txt, cls) {
     const b = document.createElement("button");
     b.textContent = txt;
@@ -138,20 +131,18 @@ export function cargarEstudiantes() {
 
   function eliminarAlumno(nombre) {
     if (confirm(`¿Estás seguro de eliminar a ${nombre}?`)) {
-      // Eliminar de estudiantes
       let estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
       estudiantes = estudiantes.filter(est => est.nombre !== nombre);
       localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
-      
-      // Eliminar datos relacionados
+
       const motivos = JSON.parse(localStorage.getItem("motivos") || "{}");
       delete motivos[nombre];
       localStorage.setItem("motivos", JSON.stringify(motivos));
-      
+
       const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
       delete uniformes[nombre];
       localStorage.setItem("uniformes", JSON.stringify(uniformes));
-      
+
       cargarEstudiantes();
     }
   }
@@ -184,6 +175,41 @@ export function cargarEstudiantes() {
 
     cont.append(txtMot, btnGuardar, btnVolver);
     root.appendChild(cont);
+  }
+
+  function guardarAsistenciasBackend() {
+    const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+    const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
+    const motivos = JSON.parse(localStorage.getItem("motivos") || "{}");
+    const profesorId = localStorage.getItem("profesor_id");
+
+    estudiantes.forEach(est => {
+      const fila = [...document.querySelectorAll("tbody tr")].find(tr => tr.children[1].textContent === est.nombre);
+      if (!fila) return;
+
+      const presente = fila.querySelector(".btn-check").classList.contains("activo") ? 1 : 0;
+      const uniforme = uniformes[est.nombre] || {};
+
+      const datos = {
+        nombre: est.nombre,
+        presente,
+        camisa_ok: uniforme.camisa === "si" ? 1 : 0,
+        pantalon_ok: uniforme.pantalon === "si" ? 1 : 0,
+        zapatos_ok: uniforme.zapatos === "si" ? 1 : 0,
+        uniforme_ok: (uniforme.camisa === "si" && uniforme.pantalon === "si" && uniforme.zapatos === "si") ? 1 : 0,
+        motivo: motivos[est.nombre] || null,
+        profesor_id: profesorId
+      };
+
+      fetch("http://localhost:3000/asistencias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+      })
+        .then(res => res.json())
+        .then(res => console.log("Guardado:", res))
+        .catch(err => console.error("Error al guardar asistencia:", err));
+    });
   }
 }
 
