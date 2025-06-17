@@ -1,3 +1,4 @@
+
 import { cargarMainApp } from "../../index.js";
 
 export function cargarLogin() {
@@ -70,7 +71,7 @@ function login() {
   fetch("http://localhost:3000/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ correo: email, password: password }),
+    body: JSON.stringify({ correo: email, password: password }), // Cambié 'contraseña' por 'password'
   })
     .then((res) => {
       if (!res.ok) throw res;
@@ -78,9 +79,8 @@ function login() {
     })
     .then((data) => {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("nombre", data.nombre);
-      localStorage.setItem("rol", data.rol); // Guardar el rol del usuario
-      cargarMainApp(data.rol);
+      localStorage.setItem("nombre", data.nombre); // ← corregido
+      cargarMainApp();
     })
     .catch(async (err) => {
       let msg = "Error al iniciar sesión";
@@ -157,49 +157,38 @@ function cargarRegistro(e) {
   const title = document.createElement("h2");
   title.textContent = "Crear cuenta";
 
-  const nombre = crearInput("text", "Nombre completo", "nombre");
+  const nombre = crearInput("text", "Nombre completo", "nombre"); // Nuevo campo
   const email = crearInput("email", "Correo electrónico", "correo");
   const pass1 = crearInput("password", "Contraseña", "password1");
   const pass2 = crearInput("password", "Repite la contraseña", "password2");
-  const rolSelect = document.createElement("select");
-  rolSelect.id = "rol-select";
-  rolSelect.innerHTML = `
-    <option value="">Seleccione un rol</option>
-    <option value="profesor">Profesor</option>
-    <option value="coordinador">Coordinador</option>
-    <option value="admin">Administrador</option>
-  `;
-
   const btnRegister = crearBoton("Registrar");
   const back = crearBoton("Volver");
   back.style.marginTop = "8px";
 
-  box.append(title, nombre, email, pass1, pass2, rolSelect, btnRegister, back);
+  box.append(title, nombre, email, pass1, pass2, btnRegister, back);
   container.appendChild(box);
   root.appendChild(container);
 
   back.addEventListener("click", cargarLogin);
 
   btnRegister.addEventListener("click", () => {
-    const nombreValue = nombre.value.trim();
+    const nombreValue = nombre.value.trim(); // Obtener el nombre
     const correoValue = email.value.trim();
     const passValue = pass1.value.trim();
     const passConfirm = pass2.value.trim();
-    const rolValue = rolSelect.value;
 
-    if (!nombreValue || !correoValue || !passValue || !passConfirm || !rolValue)
+    if (!nombreValue || !correoValue || !passValue || !passConfirm)
       return alert("Por favor completa todos los campos");
     if (passValue !== passConfirm)
       return alert("Las contraseñas no coinciden");
 
     const user = {
-      nombre: nombreValue,
+      nombre: nombreValue, // Ahora se envía el nombre
       correo: correoValue,
       password: passValue,
-      rol: rolValue
     };
 
-    fetch("http://localhost:3000/register", {
+    fetch("http://localhost:3000/register", { // ← ruta corregida
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
@@ -218,3 +207,5 @@ function cargarRegistro(e) {
       );
   });
 }
+
+

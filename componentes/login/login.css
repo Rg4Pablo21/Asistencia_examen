@@ -1,131 +1,79 @@
-/* Contenedor full-screen */
+
+
+/* Contenedor full‑screen */
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 40px);
-  padding: 20px;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+    padding: 20px;
+  }
+  
+  /* Caja de formulario */
+  .form-box {
+    background-color: var(--dark-2);
+    padding: 40px;
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
+    width: 100%;
+    max-width: 420px;
+    text-align: left;
+  }
+  
+  .form-box h2 {
+    margin-bottom: 24px;
+    font-size: 24px;
+  }
+  
+  /* Inputs */
+  .form-box input {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border: 2px solid var(--primary);
+    background: transparent;
+    border-radius: var(--radius);
+    color: #fff;
+    transition: border-color .3s;
+  }
+  
+  .form-box input:focus {
+    outline: none;
+    border-color: var(--primary-alt);
+  }
+  
+  /* Botones y enlaces */
+  .form-box button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-alt));
+    border: none;
+    border-radius: var(--radius);
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    transition: transform .25s;
+  }
+  
+  .form-box button:hover {
+    transform: scale(1.03);
+  }
+  
+  .form-box a {
+    display: block;
+    margin-top: 12px;
+    text-align: center;
+    color: var(--primary);
+    font-size: 14px;
+  }
+  
+  .error-message {
+    color: var(--danger);
+    margin-top: 6px;
+    font-weight: bold;
+  }
 
-/* Caja de formulario */
-.form-box {
-  background-color: var(--dark-2);
-  padding: 40px;
-  border: 2px solid var(--primary);
-  border-radius: var(--radius);
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
-  width: 100%;
-  max-width: 420px;
-  text-align: left;
-}
 
-.form-box h2 {
-  margin-bottom: 24px;
-  font-size: 24px;
-  color: var(--primary);
-  text-align: center;
-}
 
-/* Inputs */
-.form-box input {
-  width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 18px;
-  border: 2px solid var(--primary);
-  background: transparent;
-  border-radius: var(--radius);
-  color: #fff;
-  transition: border-color 0.3s;
-  font-size: 16px;
-}
 
-.form-box input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.form-box input:focus {
-  outline: none;
-  border-color: var(--primary-alt);
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-}
-
-/* Select de Rol */
-.form-box select {
-  width: 100%;
-  padding: 12px 16px;
-  margin-bottom: 18px;
-  border: 2px solid var(--primary);
-  background-color: var(--dark-2);
-  border-radius: var(--radius);
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 20px;
-}
-
-.form-box select:focus {
-  outline: none;
-  border-color: var(--primary-alt);
-  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-}
-
-.form-box option {
-  background-color: var(--dark-2);
-  color: #fff;
-  padding: 10px;
-}
-
-.form-box option[value=""] {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* Botones y enlaces */
-.form-box button {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(90deg, var(--primary), var(--primary-alt));
-  border: none;
-  border-radius: var(--radius);
-  font-weight: bold;
-  color: #000;
-  cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s;
-  font-size: 16px;
-  margin-top: 10px;
-}
-
-.form-box button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-}
-
-.form-box a {
-  display: block;
-  margin-top: 12px;
-  text-align: center;
-  color: var(--primary);
-  font-size: 14px;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.form-box a:hover {
-  color: var(--primary-alt);
-  text-decoration: underline;
-}
-
-.error-message {
-  color: var(--danger);
-  margin-top: 6px;
-  font-weight: bold;
-  text-align: center;
-  font-size: 14px;
-}
-
-.error-message.hidden {
-  visibility: hidden;
-}

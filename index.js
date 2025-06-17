@@ -1,44 +1,27 @@
+
 import { cargarLogin } from "./componentes/login/login.js";
 import { createHeader } from "./componentes/header/header.js";
 import { cargarNiveles } from "./componentes/levels/level.js";
 import { cargarEstudiantes } from "./componentes/estudiante/estudiante.js";
-import { cargarPanelAdmin } from "./componentes/admin/admin.js";
-import { cargarPanelCoordinador } from "./componentes/coordinador/coordinador.js";
 
 document.addEventListener("DOMContentLoaded", startApp);
 
 function startApp() {
   const token = localStorage.getItem("token");
-  const rol = localStorage.getItem("rol");
-  
-  if (token && rol) {
-    cargarMainApp(rol);
+  if (token) {
+    cargarMainApp();
   } else {
     cargarLogin();
   }
 }
 
-export function cargarMainApp(rol) {
+export function cargarMainApp() {
   if (!document.querySelector(".app-header")) {
-    const header = createHeader(rol);
+    const header = createHeader();
     document.body.prepend(header);
   }
 
-  // Cargar el panel según el rol
-  switch(rol) {
-    case "admin":
-      cargarPanelAdmin();
-      break;
-    case "coordinador":
-      cargarPanelCoordinador();
-      break;
-    case "profesor":
-      mostrarSelectorNiveles();
-      break;
-    default:
-      console.error("Rol no reconocido");
-      cargarLogin();
-  }
+  mostrarSelectorNiveles();
 }
 
 function mostrarSelectorNiveles() {
@@ -64,38 +47,23 @@ document.addEventListener("click", (e) => {
   e.target.classList.add("active");
 
   const root = document.getElementById("root");
-  const rol = localStorage.getItem("rol");
 
   if (e.target.id === "home-btn") {
-    if (rol === "profesor") {
-      mostrarSelectorNiveles();
-    } else if (rol === "coordinador") {
-      cargarPanelCoordinador();
-    } else if (rol === "admin") {
-      cargarPanelAdmin();
-    }
+    mostrarSelectorNiveles();
   } else if (e.target.id === "asistencia-btn") {
-    if (rol === "profesor") {
-      const grado = localStorage.getItem("gradoSeleccionado");
-      const seccion = localStorage.getItem("seccionSeleccionado");
-      const nivel = localStorage.getItem("nivelSeleccionado");
+    const grado = localStorage.getItem("gradoSeleccionado");
+    const seccion = localStorage.getItem("seccionSeleccionado");
+    const nivel = localStorage.getItem("nivelSeleccionado");
 
-      if (grado && seccion && nivel) {
-        root.innerHTML = "";
-        cargarEstudiantes();
-      } else {
-        mostrarSelectorNiveles();
-      }
+    if (grado && seccion && nivel) {
+      root.innerHTML = "";
+      cargarEstudiantes();
+    } else {
+      mostrarSelectorNiveles();
     }
   } else if (e.target.id === "reportes-btn") {
     root.innerHTML = "<h2 style='text-align:center;margin-top:40px'>Módulo de reportes próximamente 🚧</h2>";
-  } else if (e.target.id === "admin-btn") {
-    if (rol === "admin") {
-      cargarPanelAdmin();
-    }
-  } else if (e.target.id === "coordinador-btn") {
-    if (rol === "coordinador") {
-      cargarPanelCoordinador();
-    }
   }
 });
+
+

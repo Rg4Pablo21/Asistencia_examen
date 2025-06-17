@@ -1,3 +1,4 @@
+
 export function cargarEstudiantes() {
   const root = document.querySelector("#root");
   root.innerHTML = "";
@@ -298,3 +299,7 @@ function cargarUniforme(nombreAlumno) {
   cont.append(grid, txtMot, btnGuardar, btnVolver);
   root.appendChild(cont);
 }
+
+
+
+

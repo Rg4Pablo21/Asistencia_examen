@@ -1,199 +1,40 @@
 .asistencia-container {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 20px;
+  max-width: 1024px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #1e1e1e;
+  color: #fff;
+  border: 2px solid #00c3ff;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 212, 255, .08);
 }
 
 .asistencia-container h2 {
-  color: var(--primary);
-  margin-bottom: 20px;
   text-align: center;
-}
-
-.btn-agregar {
-  background-color: var(--primary);
-  color: #000;
-  border: none;
-  padding: 10px 15px;
-  border-radius: var(--radius);
-  font-weight: bold;
   margin-bottom: 20px;
-  transition: all 0.3s ease;
 }
 
-.btn-agregar:hover {
-  background-color: var(--primary-alt);
-  transform: translateY(-2px);
-}
-
+/* ---------- TABLA ---------- */
 .tabla-estudiantes {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
-  background-color: var(--dark-2);
-  border-radius: var(--radius);
-  overflow: hidden;
 }
 
-.tabla-estudiantes th {
-  background-color: var(--dark-3);
-  color: var(--primary);
-  padding: 12px;
-  text-align: left;
-}
-
+.tabla-estudiantes th,
 .tabla-estudiantes td {
-  padding: 12px;
-  border-bottom: 1px solid var(--dark-3);
-}
-
-.tabla-estudiantes tr:last-child td {
-  border-bottom: none;
-}
-
-.tabla-estudiantes tr:hover {
-  background-color: rgba(0, 212, 255, 0.05);
-}
-
-.asistencia-botones {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-check, .btn-x, .btn-uniforme, .btn-correo, .btn-eliminar {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: all 0.2s;
-}
-
-.btn-check {
-  background-color: rgba(80, 250, 123, 0.2);
-  color: var(--success);
-}
-
-.btn-check.activo {
-  background-color: var(--success);
-  color: #000;
-}
-
-.btn-x {
-  background-color: rgba(255, 85, 85, 0.2);
-  color: var(--danger);
-}
-
-.btn-x.activo {
-  background-color: var(--danger);
-  color: #fff;
-}
-
-.btn-uniforme {
-  background-color: rgba(0, 212, 255, 0.2);
-  color: var(--primary);
-}
-
-.btn-correo {
-  background-color: rgba(255, 255, 0, 0.2);
-  color: #ffcc00;
-}
-
-.btn-eliminar {
-  background-color: rgba(255, 85, 85, 0.2);
-  color: var(--danger);
-}
-
-.botones-container {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn-todos, .btn-guardar {
-  flex: 1;
   padding: 10px;
-  border: none;
-  border-radius: var(--radius);
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.btn-todos {
-  background-color: var(--dark-3);
-  color: var(--light);
-}
-
-.btn-todos:hover {
-  background-color: var(--primary);
-  color: #000;
-}
-
-.btn-guardar {
-  background-color: var(--success);
-  color: #000;
-}
-
-.btn-guardar:hover {
-  background-color: #3ad066;
-}
-
-/* Estilos para los modales */
-.motivo-container, .uniforme-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: var(--dark-2);
-  border-radius: var(--radius);
-}
-
-.motivo-container h3, .uniforme-container h3 {
-  color: var(--primary);
-  margin-bottom: 20px;
+  border: 1px solid #444;
   text-align: center;
+  background: #2a2a2a;
 }
 
-.motivo-container textarea, .uniforme-container textarea {
+textarea {
   width: 100%;
-  min-height: 150px;
-  padding: 12px;
-  margin-bottom: 20px;
-  background-color: var(--dark-3);
-  border: 1px solid var(--primary);
-  border-radius: var(--radius);
-  color: #fff;
   resize: vertical;
+  padding: 8px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 6px;
 }
 
-.uniforme-opciones {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.uniforme-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px;
-  background-color: var(--dark-3);
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.uniforme-item img {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  margin-bottom: 10px;
-}
-
-.uniforme-item p {
-  margin-top: 8px;
-  text-align: center;
-}

@@ -1,3 +1,4 @@
+
 export function cargarNiveles(callbackSeleccion) {
   const container = document.createElement("div");
   container.className = "niveles-container";
@@ -112,3 +113,5 @@ function buildSelect(id, placeholder, disabled = false) {
   select.innerHTML = `<option value="">${placeholder}</option>`;
   return select;
 }
+
+
