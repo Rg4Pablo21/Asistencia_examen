@@ -190,18 +190,24 @@ export function cargarEstudiantes() {
       const presente = fila.querySelector(".btn-check").classList.contains("activo") ? 1 : 0;
       const uniforme = uniformes[est.nombre] || {};
 
-      const datos = {
-        nombre: est.nombre,
-        presente,
-        camisa_ok: uniforme.camisa === "si" ? 1 : 0,
-        pantalon_ok: uniforme.pantalon === "si" ? 1 : 0,
-        zapatos_ok: uniforme.zapatos === "si" ? 1 : 0,
-        uniforme_ok: (uniforme.camisa === "si" && uniforme.pantalon === "si" && uniforme.zapatos === "si") ? 1 : 0,
-        motivo: motivos[est.nombre] || null,
-        profesor_id: profesorId
-      };
-
-      fetch("http://localhost:3000/asistencias", {
+      const datos = [
+        {
+          alumno_id: 1,
+          fecha: "2025-06-17",
+          estado: "presente",
+          motivo: "",
+          uniforme: "completo"
+        },
+        {
+          alumno_id: 2,
+          fecha: "2025-06-17",
+          estado: "ausente",
+          motivo: "enfermedad",
+          uniforme: "incompleto"
+        }
+      ];
+      
+      fetch("http://localhost:3000/asistencias/guardar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
@@ -209,6 +215,7 @@ export function cargarEstudiantes() {
         .then(res => res.json())
         .then(res => console.log("Guardado:", res))
         .catch(err => console.error("Error al guardar asistencia:", err));
+      
     });
   }
 }
