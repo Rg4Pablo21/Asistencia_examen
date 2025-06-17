@@ -33,6 +33,7 @@ export function cargarLogin() {
   btnRegister.addEventListener("click", cargarRegistro);
 }
 
+/* -------- utilidades -------- */
 function crearInput(type, placeholder, id) {
   const input = document.createElement("input");
   input.type = type;
@@ -56,6 +57,7 @@ function crearLink(text, id) {
   return link;
 }
 
+/* ---------------- Login ---------------- */
 function login() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
@@ -67,24 +69,19 @@ function login() {
 
   fetch("http://localhost:3000/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      correo: email,
-      password: password
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ correo: email, password: password }), // Cambié 'contraseña' por 'password'
   })
-    .then(res => {
+    .then((res) => {
       if (!res.ok) throw res;
       return res.json();
     })
-    .then(data => {
+    .then((data) => {
       localStorage.setItem("token", data.token);
-      localStorage.setItem("nombre", data.user.nombre);
+      localStorage.setItem("nombre", data.nombre); // ← corregido
       cargarMainApp();
     })
-    .catch(async err => {
+    .catch(async (err) => {
       let msg = "Error al iniciar sesión";
       if (err.json) {
         const errData = await err.json();
@@ -100,7 +97,7 @@ function showError(msg) {
   p.classList.remove("hidden");
 }
 
-/* ---------------- Recuperar contraseña ---------------- */
+/* -------------- Recuperar contraseña -------------- */
 function cargarRecuperarClave(e) {
   e.preventDefault();
   const root = document.getElementById("root");
@@ -133,14 +130,14 @@ function cargarRecuperarClave(e) {
     fetch("http://localhost:3000/recover", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ correo })
+      body: JSON.stringify({ correo }),
     })
-      .then(res => res.json())
-      .then(data => {
-        alert("Revisa tu correo para la nueva contraseña");
+      .then((res) => res.json())
+      .then((data) => {
+        alert(data.message || "Revisa tu correo para la nueva contraseña");
         cargarLogin();
       })
-      .catch(err => alert("Error al enviar solicitud: " + err.message));
+      .catch((err) => alert("Error al enviar solicitud: " + err.message));
   });
 }
 
@@ -159,42 +156,44 @@ function cargarRegistro(e) {
   const title = document.createElement("h2");
   title.textContent = "Crear cuenta";
 
-  const email = crearInput("email", "Correo electrónico");
-  const pass1 = crearInput("password", "Contraseña");
-  const pass2 = crearInput("password", "Repite la contraseña");
+  const nombre = crearInput("text", "Nombre completo", "nombre"); // Nuevo campo
+  const email = crearInput("email", "Correo electrónico", "correo");
+  const pass1 = crearInput("password", "Contraseña", "password1");
+  const pass2 = crearInput("password", "Repite la contraseña", "password2");
   const btnRegister = crearBoton("Registrar");
   const back = crearBoton("Volver");
   back.style.marginTop = "8px";
 
-  box.append(title, email, pass1, pass2, btnRegister, back);
+  box.append(title, nombre, email, pass1, pass2, btnRegister, back);
   container.appendChild(box);
   root.appendChild(container);
 
   back.addEventListener("click", cargarLogin);
 
   btnRegister.addEventListener("click", () => {
-    const emailValue = email.value.trim();
+    const nombreValue = nombre.value.trim(); // Obtener el nombre
+    const correoValue = email.value.trim();
     const passValue = pass1.value.trim();
     const passConfirm = pass2.value.trim();
 
-    if (!emailValue || !passValue || !passConfirm)
+    if (!nombreValue || !correoValue || !passValue || !passConfirm)
       return alert("Por favor completa todos los campos");
     if (passValue !== passConfirm)
       return alert("Las contraseñas no coinciden");
 
     const user = {
-      nombre: emailValue.split("@")[0],
-      correo: emailValue,
-      password: passValue
+      nombre: nombreValue, // Ahora se envía el nombre
+      correo: correoValue,
+      password: passValue,
     };
 
-    fetch("http://localhost:3000/register", {
+    fetch("http://localhost:3000/register", { // ← ruta corregida
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) {
           alert("Usuario registrado con éxito");
           cargarLogin();
@@ -202,8 +201,8 @@ function cargarRegistro(e) {
           alert("Error: " + data.message);
         }
       })
-      .catch(err => {
-        alert("Hubo un error al registrar el usuario: " + err.message);
-      });
+      .catch((err) =>
+        alert("Hubo un error al registrar el usuario: " + err.message)
+      );
   });
 }
