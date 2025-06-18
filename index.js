@@ -1,8 +1,14 @@
-
 import { cargarLogin } from "./componentes/login/login.js";
 import { createHeader } from "./componentes/header/header.js";
 import { cargarNiveles } from "./componentes/levels/level.js";
 import { cargarEstudiantes } from "./componentes/estudiante/estudiante.js";
+import { cargarProyecciones } from "./componentes/proyecciones/proyecciones.js";
+import { modalStyles } from "./componentes/utils/modal.js";
+
+// Añadir estilos del modal
+const styleElement = document.createElement("style");
+styleElement.textContent = modalStyles;
+document.head.appendChild(styleElement);
 
 document.addEventListener("DOMContentLoaded", startApp);
 
@@ -62,8 +68,26 @@ document.addEventListener("click", (e) => {
       mostrarSelectorNiveles();
     }
   } else if (e.target.id === "reportes-btn") {
-    root.innerHTML = "<h2 style='text-align:center;margin-top:40px'>Módulo de reportes próximamente 🚧</h2>";
+    root.innerHTML = "";
+    cargarProyecciones();
   }
 });
 
-
+// Función global para mostrar errores
+window.mostrarError = (mensaje) => {
+  const modal = document.createElement("div");
+  modal.className = "error-modal";
+  modal.innerHTML = `
+    <div class="error-content">
+      <h3>Error</h3>
+      <p>${mensaje}</p>
+      <button class="btn-aceptar">Aceptar</button>
+    </div>
+  `;
+  
+  modal.querySelector(".btn-aceptar").onclick = () => {
+    document.body.removeChild(modal);
+  };
+  
+  document.body.appendChild(modal);
+};
