@@ -3,12 +3,8 @@ import { createHeader } from "./componentes/header/header.js";
 import { cargarNiveles } from "./componentes/levels/level.js";
 import { cargarEstudiantes } from "./componentes/estudiante/estudiante.js";
 import { cargarProyecciones } from "./componentes/proyecciones/proyecciones.js";
-import { modalStyles } from "./componentes/utils/modal.js";
 
-// Añadir estilos del modal
-const styleElement = document.createElement("style");
-styleElement.textContent = modalStyles;
-document.head.appendChild(styleElement);
+
 
 document.addEventListener("DOMContentLoaded", startApp);
 

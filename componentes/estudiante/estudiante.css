@@ -73,6 +73,7 @@
   color: white;
 }
 
+/* Estilos para el botón de entrada tarde */
 .btn-tarde {
   background: #333;
   color: #f39c12;
@@ -247,4 +248,74 @@ textarea {
 
 .btn-volver:hover {
   background: #555;
+}
+
+/* ========== ESTILOS DE MODALES ========== */
+.modal-correo,
+.modal-tarde {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background-color: var(--dark-2);
+  padding: 20px;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 500px;
+  border: 1px solid var(--primary);
+}
+
+.campo-modal {
+  margin-bottom: 15px;
+}
+
+.campo-modal label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--primary);
+}
+
+.campo-modal input,
+.campo-modal textarea,
+.campo-modal select {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--dark-3);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  color: white;
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-botones button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.modal-botones .btn-confirmar,
+.modal-botones .btn-enviar {
+  background-color: var(--primary);
+  color: black;
+}
+
+.modal-botones .btn-cancelar {
+  background-color: var(--dark-3);
+  color: white;
 }

@@ -9,7 +9,6 @@ export function cargarEstudiantes() {
   h2.textContent = "Lista de Asistencia";
   cont.appendChild(h2);
 
-  // Verificar si asistencia ya fue tomada hoy
   const hoy = new Date().toLocaleDateString();
   const asistenciaTomada = localStorage.getItem(`asistencia-${hoy}`) === 'true';
   if (asistenciaTomada) {
@@ -19,7 +18,6 @@ export function cargarEstudiantes() {
     cont.appendChild(alerta);
   }
 
-  // Botón para añadir nuevo alumno
   const btnAgregar = document.createElement("button");
   btnAgregar.className = "btn-agregar";
   btnAgregar.textContent = "➕ Añadir Alumno";
@@ -41,68 +39,57 @@ export function cargarEstudiantes() {
     <tbody></tbody>`;
   const tbody = tabla.querySelector("tbody");
 
-  const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [
-    { id: 1, nombre: "Carlos Pérez", correo: "carlos@example.com" },
-    { id: 2, nombre: "Ana López", correo: "ana@example.com" },
-    // ... otros estudiantes de ejemplo
-  ];
-
-  const asistencias = JSON.parse(localStorage.getItem("asistencias") || {});
-  const uniformes = JSON.parse(localStorage.getItem("uniformes") || {});
+  const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+  const asistencias = JSON.parse(localStorage.getItem("asistencias") || '{}');
+  const uniformes = JSON.parse(localStorage.getItem("uniformes") || '{}');
 
   estudiantes.forEach((estudiante, i) => {
     const tr = document.createElement("tr");
     const asistenciaHoy = asistencias[estudiante.id]?.[hoy] || { estado: null, tarde: false };
 
-    // Número
     const tdNum = document.createElement("td");
     tdNum.textContent = i + 1;
 
-    // Nombre
     const tdNom = document.createElement("td");
     tdNom.textContent = estudiante.nombre;
 
-    // Asistencia
     const tdAsist = document.createElement("td");
     const btnPresente = crearBtn("✔", "btn-check");
     const btnAusente = crearBtn("✘", "btn-x");
-    const btnTarde = crearBtn("⌚", "btn-tarde");
-    
+    const btnTarde = crearBtnTarde();
+
     if (asistenciaHoy.estado === "presente") btnPresente.classList.add("activo");
     if (asistenciaHoy.estado === "ausente") btnAusente.classList.add("activo");
     if (asistenciaHoy.tarde) btnTarde.classList.add("activo");
 
     btnPresente.onclick = () => actualizarAsistencia(estudiante.id, "presente", false);
     btnAusente.onclick = () => actualizarAsistencia(estudiante.id, "ausente", false);
-    btnTarde.onclick = () => marcarTarde(estudiante);
+    btnTarde.onclick = () => marcarEntradaTarde(estudiante.nombre);
 
     tdAsist.append(btnPresente, btnAusente, btnTarde);
 
-    // Uniforme
     const tdUni = document.createElement("td");
     const btnUniforme = crearBtn("👕", "btn-uniforme");
     const uniformeHoy = uniformes[estudiante.id]?.[hoy] || { completo: true, detalles: "" };
-    
+
     if (!uniformeHoy.completo) btnUniforme.classList.add("incompleto");
     btnUniforme.onclick = () => cargarUniforme(estudiante);
     tdUni.appendChild(btnUniforme);
 
-    // Acciones
     const tdAcc = document.createElement("td");
     const btnCorreo = crearBtn("📧", "btn-correo");
     const btnEliminar = crearBtn("🗑️", "btn-eliminar");
-    
+
     btnCorreo.onclick = () => enviarCorreo(estudiante);
     btnEliminar.onclick = () => confirmarEliminacion(estudiante);
-    
     tdAcc.append(btnCorreo, btnEliminar);
+
     tr.append(tdNum, tdNom, tdAsist, tdUni, tdAcc);
     tbody.appendChild(tr);
   });
 
   cont.appendChild(tabla);
 
-  // Barra de acciones
   const barra = document.createElement("div");
   barra.className = "botones-container";
 
@@ -120,7 +107,8 @@ export function cargarEstudiantes() {
   cont.appendChild(barra);
   root.appendChild(cont);
 
-  // Funciones auxiliares
+  // ================= FUNCIONES AUXILIARES =================
+
   function crearBtn(txt, cls) {
     const b = document.createElement("button");
     b.textContent = txt;
@@ -135,45 +123,71 @@ export function cargarEstudiantes() {
     return b;
   }
 
-  async function confirmarEliminacion(estudiante) {
+  function crearBtnTarde() {
+    const btn = document.createElement('button');
+    btn.innerHTML = '⌚';
+    btn.className = 'btn-tarde';
+    btn.title = 'Marcar entrada tarde';
+    return btn;
+  }
+
+  function marcarEntradaTarde(nombreAlumno) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-tarde';
+
+    modal.innerHTML = `
+      <div class="modal-contenido">
+        <h3>Registrar entrada tarde</h3>
+        <p>Alumno: ${nombreAlumno}</p>
+        <div class="campo-modal">
+          <label>Minutos de retardo:</label>
+          <input type="number" min="1" value="15">
+        </div>
+        <div class="campo-modal">
+          <label>Motivo:</label>
+          <textarea placeholder="Ingrese el motivo del retardo..."></textarea>
+        </div>
+        <div class="modal-botones">
+          <button class="btn-confirmar">Confirmar</button>
+          <button class="btn-cancelar">Cancelar</button>
+        </div>
+      </div>
+    `;
+
+    modal.querySelector('.btn-cancelar').addEventListener('click', () => modal.remove());
+
+    modal.querySelector('.btn-confirmar').addEventListener('click', () => {
+      const minutos = modal.querySelector('input').value;
+      const motivo = modal.querySelector('textarea').value;
+      alert(`Entrada tarde registrada: ${minutos} minutos. Motivo: ${motivo}`);
+      modal.remove();
+    });
+
+    document.body.appendChild(modal);
+  }
+
+  function actualizarAsistencia(id, estado, tarde) {
+    const hoy = new Date().toLocaleDateString();
+    const asistencias = JSON.parse(localStorage.getItem("asistencias") || '{}');
+
+    if (!asistencias[id]) asistencias[id] = {};
+    asistencias[id][hoy] = { estado, tarde };
+
+    localStorage.setItem("asistencias", JSON.stringify(asistencias));
+    cargarEstudiantes();
+  }
+
+  function confirmarEliminacion(estudiante) {
     const password = prompt(`Para eliminar a ${estudiante.nombre}, ingrese su contraseña:`);
     if (!password) return;
 
     try {
-      // Aquí iría la llamada al backend
       const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
       const nuevos = estudiantes.filter(e => e.id !== estudiante.id);
       localStorage.setItem("estudiantes", JSON.stringify(nuevos));
       cargarEstudiantes();
     } catch (error) {
       alert("Error al eliminar: " + error.message);
-    }
-  }
-
-  function actualizarAsistencia(id, estado, tarde) {
-    const hoy = new Date().toLocaleDateString();
-    const asistencias = JSON.parse(localStorage.getItem("asistencias") || {});
-    
-    if (!asistencias[id]) asistencias[id] = {};
-    asistencias[id][hoy] = { estado, tarde };
-    
-    localStorage.setItem("asistencias", JSON.stringify(asistencias));
-    cargarEstudiantes();
-  }
-
-  function marcarTarde(estudiante) {
-    const motivo = prompt(`Motivo de tardanza para ${estudiante.nombre}:`);
-    if (motivo) {
-      actualizarAsistencia(estudiante.id, "presente", true);
-      // Registrar motivo
-      const reportes = JSON.parse(localStorage.getItem("reportes") || {});
-      if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
-      reportes[estudiante.id].push({
-        fecha: new Date().toISOString(),
-        tipo: "tardanza",
-        motivo
-      });
-      localStorage.setItem("reportes", JSON.stringify(reportes));
     }
   }
 
@@ -199,12 +213,7 @@ export function cargarEstudiantes() {
       const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
       const nuevoId = estudiantes.length > 0 ? Math.max(...estudiantes.map(e => e.id)) + 1 : 1;
       
-      estudiantes.push({
-        id: nuevoId,
-        nombre,
-        correo
-      });
-      
+      estudiantes.push({ id: nuevoId, nombre, correo });
       localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
       cargarEstudiantes();
     }
@@ -215,11 +224,8 @@ export function cargarEstudiantes() {
     if (!motivo) return;
 
     try {
-      // Simular envío al backend
       console.log(`Enviando correo a ${estudiante.correo} con motivo: ${motivo}`);
       alert(`Correo enviado a ${estudiante.nombre}`);
-      
-      // Registrar envío
       const reportes = JSON.parse(localStorage.getItem("reportes") || "{}");
       if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
       reportes[estudiante.id].push({
@@ -239,7 +245,6 @@ export function cargarEstudiantes() {
 
     if (confirm(`¿Enviar correo a TODOS los alumnos?`)) {
       try {
-        // Simular envío grupal
         alert("Correos enviados a todos los alumnos");
       } catch (error) {
         alert("Error al enviar correos: " + error.message);
@@ -287,7 +292,7 @@ export async function cargarUniforme(estudiante) {
   partes.forEach(parte => {
     const item = document.createElement("div");
     item.className = "uniforme-item";
-    
+
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = `uniforme-${parte.id}`;
@@ -320,10 +325,8 @@ export async function cargarUniforme(estudiante) {
   btnGuardar.textContent = "Guardar Uniforme";
   btnGuardar.onclick = () => {
     uniformeActual.detalles = detalles.value;
-    
     if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
     uniformes[estudiante.id][hoy] = uniformeActual;
-    
     localStorage.setItem("uniformes", JSON.stringify(uniformes));
     alert("Uniforme registrado correctamente");
     cargarEstudiantes();
