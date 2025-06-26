@@ -9,6 +9,7 @@ export function cargarEstudiantes() {
   h2.textContent = "Lista de Asistencia";
   cont.appendChild(h2);
 
+  // Verificación de asistencia ya tomada
   const hoy = new Date().toLocaleDateString();
   const asistenciaTomada = localStorage.getItem(`asistencia-${hoy}`) === 'true';
   if (asistenciaTomada) {
@@ -18,12 +19,14 @@ export function cargarEstudiantes() {
     cont.appendChild(alerta);
   }
 
+  // Botón para agregar nuevo alumno
   const btnAgregar = document.createElement("button");
   btnAgregar.className = "btn-agregar";
   btnAgregar.textContent = "➕ Añadir Alumno";
   btnAgregar.onclick = agregarAlumno;
   cont.appendChild(btnAgregar);
 
+  // Creación de la tabla
   const tabla = document.createElement("table");
   tabla.className = "tabla-estudiantes";
   tabla.innerHTML = `
@@ -37,59 +40,68 @@ export function cargarEstudiantes() {
       </tr>
     </thead>
     <tbody></tbody>`;
+  
   const tbody = tabla.querySelector("tbody");
 
+  // Datos de estudiantes
   const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
-  const asistencias = JSON.parse(localStorage.getItem("asistencias") || '{}');
-  const uniformes = JSON.parse(localStorage.getItem("uniformes") || '{}');
+  const asistencias = JSON.parse(localStorage.getItem("asistencias") || "{}");
+  const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
 
+  // Llenado de la tabla
   estudiantes.forEach((estudiante, i) => {
     const tr = document.createElement("tr");
     const asistenciaHoy = asistencias[estudiante.id]?.[hoy] || { estado: null, tarde: false };
 
+    // Columna Número
     const tdNum = document.createElement("td");
     tdNum.textContent = i + 1;
 
+    // Columna Nombre
     const tdNom = document.createElement("td");
     tdNom.textContent = estudiante.nombre;
 
+    // Columna Asistencia
     const tdAsist = document.createElement("td");
     const btnPresente = crearBtn("✔", "btn-check");
     const btnAusente = crearBtn("✘", "btn-x");
-    const btnTarde = crearBtnTarde();
-
+    const btnTarde = crearBtn("⌚", "btn-tarde");
+    
     if (asistenciaHoy.estado === "presente") btnPresente.classList.add("activo");
     if (asistenciaHoy.estado === "ausente") btnAusente.classList.add("activo");
     if (asistenciaHoy.tarde) btnTarde.classList.add("activo");
 
     btnPresente.onclick = () => actualizarAsistencia(estudiante.id, "presente", false);
     btnAusente.onclick = () => actualizarAsistencia(estudiante.id, "ausente", false);
-    btnTarde.onclick = () => marcarEntradaTarde(estudiante.nombre);
+    btnTarde.onclick = () => marcarTarde(estudiante);
 
     tdAsist.append(btnPresente, btnAusente, btnTarde);
 
+    // Columna Uniforme (FUNCIÓN DE ROPA)
     const tdUni = document.createElement("td");
     const btnUniforme = crearBtn("👕", "btn-uniforme");
     const uniformeHoy = uniformes[estudiante.id]?.[hoy] || { completo: true, detalles: "" };
-
+    
     if (!uniformeHoy.completo) btnUniforme.classList.add("incompleto");
     btnUniforme.onclick = () => cargarUniforme(estudiante);
     tdUni.appendChild(btnUniforme);
 
+    // Columna Acciones
     const tdAcc = document.createElement("td");
     const btnCorreo = crearBtn("📧", "btn-correo");
     const btnEliminar = crearBtn("🗑️", "btn-eliminar");
-
+    
     btnCorreo.onclick = () => enviarCorreo(estudiante);
     btnEliminar.onclick = () => confirmarEliminacion(estudiante);
+    
     tdAcc.append(btnCorreo, btnEliminar);
-
     tr.append(tdNum, tdNom, tdAsist, tdUni, tdAcc);
     tbody.appendChild(tr);
   });
 
   cont.appendChild(tabla);
 
+  // Barra de acciones inferiores
   const barra = document.createElement("div");
   barra.className = "botones-container";
 
@@ -107,8 +119,7 @@ export function cargarEstudiantes() {
   cont.appendChild(barra);
   root.appendChild(cont);
 
-  // ================= FUNCIONES AUXILIARES =================
-
+  // ============ FUNCIONES AUXILIARES ============
   function crearBtn(txt, cls) {
     const b = document.createElement("button");
     b.textContent = txt;
@@ -123,76 +134,35 @@ export function cargarEstudiantes() {
     return b;
   }
 
-  function crearBtnTarde() {
-    const btn = document.createElement('button');
-    btn.innerHTML = '⌚';
-    btn.className = 'btn-tarde';
-    btn.title = 'Marcar entrada tarde';
-    return btn;
-  }
-
-  function marcarEntradaTarde(nombreAlumno) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-tarde';
-
-    modal.innerHTML = `
-      <div class="modal-contenido">
-        <h3>Registrar entrada tarde</h3>
-        <p>Alumno: ${nombreAlumno}</p>
-        <div class="campo-modal">
-          <label>Minutos de retardo:</label>
-          <input type="number" min="1" value="15">
-        </div>
-        <div class="campo-modal">
-          <label>Motivo:</label>
-          <textarea placeholder="Ingrese el motivo del retardo..."></textarea>
-        </div>
-        <div class="modal-botones">
-          <button class="btn-confirmar">Confirmar</button>
-          <button class="btn-cancelar">Cancelar</button>
-        </div>
-      </div>
-    `;
-
-    modal.querySelector('.btn-cancelar').addEventListener('click', () => modal.remove());
-
-    modal.querySelector('.btn-confirmar').addEventListener('click', () => {
-      const minutos = modal.querySelector('input').value;
-      const motivo = modal.querySelector('textarea').value;
-      alert(`Entrada tarde registrada: ${minutos} minutos. Motivo: ${motivo}`);
-      modal.remove();
-    });
-
-    document.body.appendChild(modal);
-  }
-
   function actualizarAsistencia(id, estado, tarde) {
     const hoy = new Date().toLocaleDateString();
-    const asistencias = JSON.parse(localStorage.getItem("asistencias") || '{}');
-
+    const asistencias = JSON.parse(localStorage.getItem("asistencias") || {});
+    
     if (!asistencias[id]) asistencias[id] = {};
     asistencias[id][hoy] = { estado, tarde };
-
+    
     localStorage.setItem("asistencias", JSON.stringify(asistencias));
     cargarEstudiantes();
   }
 
-  function confirmarEliminacion(estudiante) {
-    const password = prompt(`Para eliminar a ${estudiante.nombre}, ingrese su contraseña:`);
-    if (!password) return;
-
-    try {
-      const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
-      const nuevos = estudiantes.filter(e => e.id !== estudiante.id);
-      localStorage.setItem("estudiantes", JSON.stringify(nuevos));
-      cargarEstudiantes();
-    } catch (error) {
-      alert("Error al eliminar: " + error.message);
+  function marcarTarde(estudiante) {
+    const motivo = prompt(`Motivo de tardanza para ${estudiante.nombre}:`);
+    if (motivo) {
+      actualizarAsistencia(estudiante.id, "presente", true);
+      // Registrar el reporte
+      const reportes = JSON.parse(localStorage.getItem("reportes") || {});
+      if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
+      reportes[estudiante.id].push({
+        fecha: new Date().toISOString(),
+        tipo: "tardanza",
+        motivo
+      });
+      localStorage.setItem("reportes", JSON.stringify(reportes));
     }
   }
 
   function marcarTodos(estado) {
-    const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+    const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
     estudiantes.forEach(est => {
       actualizarAsistencia(est.id, estado, false);
     });
@@ -210,12 +180,31 @@ export function cargarEstudiantes() {
     const correo = prompt("Correo electrónico:");
     
     if (nombre && correo) {
-      const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
       const nuevoId = estudiantes.length > 0 ? Math.max(...estudiantes.map(e => e.id)) + 1 : 1;
       
-      estudiantes.push({ id: nuevoId, nombre, correo });
+      estudiantes.push({
+        id: nuevoId,
+        nombre,
+        correo
+      });
+      
       localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
       cargarEstudiantes();
+    }
+  }
+
+  async function confirmarEliminacion(estudiante) {
+    const password = prompt(`Para eliminar a ${estudiante.nombre}, ingrese su contraseña:`);
+    if (!password) return;
+
+    try {
+      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
+      const nuevos = estudiantes.filter(e => e.id !== estudiante.id);
+      localStorage.setItem("estudiantes", JSON.stringify(nuevos));
+      cargarEstudiantes();
+    } catch (error) {
+      alert("Error al eliminar: " + error.message);
     }
   }
 
@@ -224,8 +213,10 @@ export function cargarEstudiantes() {
     if (!motivo) return;
 
     try {
-      console.log(`Enviando correo a ${estudiante.correo} con motivo: ${motivo}`);
+      // Simulación de envío
       alert(`Correo enviado a ${estudiante.nombre}`);
+      
+      // Registrar el envío
       const reportes = JSON.parse(localStorage.getItem("reportes") || "{}");
       if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
       reportes[estudiante.id].push({
@@ -253,7 +244,8 @@ export function cargarEstudiantes() {
   }
 }
 
-export async function cargarUniforme(estudiante) {
+// ============ FUNCIÓN DE UNIFORME (ROPA) ============
+export function cargarUniforme(estudiante) {
   const root = document.querySelector("#root");
   root.innerHTML = "";
 
@@ -278,6 +270,7 @@ export async function cargarUniforme(estudiante) {
   h3.textContent = `Uniforme de ${estudiante.nombre}`;
   cont.appendChild(h3);
 
+  // Partes del uniforme a verificar
   const partes = [
     { id: "playera", label: "Playera" },
     { id: "pantalon", label: "Pantalón" },
@@ -292,7 +285,7 @@ export async function cargarUniforme(estudiante) {
   partes.forEach(parte => {
     const item = document.createElement("div");
     item.className = "uniforme-item";
-
+    
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = `uniforme-${parte.id}`;
@@ -310,6 +303,7 @@ export async function cargarUniforme(estudiante) {
     grid.appendChild(item);
   });
 
+  // Campo para detalles
   const detallesLabel = document.createElement("label");
   detallesLabel.textContent = "Detalles adicionales:";
   detallesLabel.style.marginTop = "20px";
@@ -320,13 +314,16 @@ export async function cargarUniforme(estudiante) {
   detalles.value = uniformeActual.detalles;
   detalles.style.marginTop = "8px";
 
+  // Botones
   const btnGuardar = document.createElement("button");
   btnGuardar.className = "btn-guardar";
   btnGuardar.textContent = "Guardar Uniforme";
   btnGuardar.onclick = () => {
     uniformeActual.detalles = detalles.value;
+    
     if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
     uniformes[estudiante.id][hoy] = uniformeActual;
+    
     localStorage.setItem("uniformes", JSON.stringify(uniformes));
     alert("Uniforme registrado correctamente");
     cargarEstudiantes();
