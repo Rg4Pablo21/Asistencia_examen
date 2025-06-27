@@ -39,108 +39,77 @@ export function cargarEstudiantes() {
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody></tbody>`;
-  
+    <tbody></tbody>
+  `;
+
   const tbody = tabla.querySelector("tbody");
 
-  // Datos de estudiantes
-  const estudiantes = JSON.parse(localStorage.getItem("estudiantes")) || [];
+  const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
   const asistencias = JSON.parse(localStorage.getItem("asistencias") || "{}");
   const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
 
-  // Llenado de la tabla
   estudiantes.forEach((estudiante, i) => {
     const tr = document.createElement("tr");
     const asistenciaHoy = asistencias[estudiante.id]?.[hoy] || { estado: null, tarde: false };
 
-    // Columna Número
-    const tdNum = document.createElement("td");
-    tdNum.textContent = i + 1;
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${estudiante.nombre}</td>
+      <td>
+        <button class="btn-check ${asistenciaHoy.estado === 'presente' ? 'activo' : ''}">✔</button>
+        <button class="btn-x ${asistenciaHoy.estado === 'ausente' ? 'activo' : ''}">✘</button>
+        <button class="btn-tarde ${asistenciaHoy.tarde ? 'activo' : ''}">⌚</button>
+      </td>
+      <td><button class="btn-uniforme ${uniformes[estudiante.id]?.[hoy]?.completo === false ? 'incompleto' : ''}">👕</button></td>
+      <td>
+        <button class="btn-correo">📧</button>
+        <button class="btn-eliminar">🗑️</button>
+      </td>
+    `;
 
-    // Columna Nombre
-    const tdNom = document.createElement("td");
-    tdNom.textContent = estudiante.nombre;
+    tr.querySelector(".btn-check").onclick = () => actualizarAsistencia(estudiante.id, "presente", false);
+    tr.querySelector(".btn-x").onclick = () => actualizarAsistencia(estudiante.id, "ausente", false);
+    tr.querySelector(".btn-tarde").onclick = () => marcarTarde(estudiante);
+    tr.querySelector(".btn-uniforme").onclick = () => cargarUniforme(estudiante);
+    tr.querySelector(".btn-correo").onclick = () => enviarCorreo(estudiante);
+    tr.querySelector(".btn-eliminar").onclick = () => confirmarEliminacion(estudiante);
 
-    // Columna Asistencia
-    const tdAsist = document.createElement("td");
-    const btnPresente = crearBtn("✔", "btn-check");
-    const btnAusente = crearBtn("✘", "btn-x");
-    const btnTarde = crearBtn("⌚", "btn-tarde");
-    
-    if (asistenciaHoy.estado === "presente") btnPresente.classList.add("activo");
-    if (asistenciaHoy.estado === "ausente") btnAusente.classList.add("activo");
-    if (asistenciaHoy.tarde) btnTarde.classList.add("activo");
-
-    btnPresente.onclick = () => actualizarAsistencia(estudiante.id, "presente", false);
-    btnAusente.onclick = () => actualizarAsistencia(estudiante.id, "ausente", false);
-    btnTarde.onclick = () => marcarTarde(estudiante);
-
-    tdAsist.append(btnPresente, btnAusente, btnTarde);
-
-    // Columna Uniforme (FUNCIÓN DE ROPA)
-    const tdUni = document.createElement("td");
-    const btnUniforme = crearBtn("👕", "btn-uniforme");
-    const uniformeHoy = uniformes[estudiante.id]?.[hoy] || { completo: true, detalles: "" };
-    
-    if (!uniformeHoy.completo) btnUniforme.classList.add("incompleto");
-    btnUniforme.onclick = () => cargarUniforme(estudiante);
-    tdUni.appendChild(btnUniforme);
-
-    // Columna Acciones
-    const tdAcc = document.createElement("td");
-    const btnCorreo = crearBtn("📧", "btn-correo");
-    const btnEliminar = crearBtn("🗑️", "btn-eliminar");
-    
-    btnCorreo.onclick = () => enviarCorreo(estudiante);
-    btnEliminar.onclick = () => confirmarEliminacion(estudiante);
-    
-    tdAcc.append(btnCorreo, btnEliminar);
-    tr.append(tdNum, tdNom, tdAsist, tdUni, tdAcc);
     tbody.appendChild(tr);
   });
 
   cont.appendChild(tabla);
 
-  // Barra de acciones inferiores
   const barra = document.createElement("div");
   barra.className = "botones-container";
+  barra.innerHTML = `
+    <button class="btn-todos">Marcar Todos Presentes</button>
+    <button class="btn-todos">Marcar Todos Ausentes</button>
+    <button class="btn-correos">Enviar Correos</button>
+    <button class="btn-guardar">Guardar Asistencia</button>
+  `;
 
-  const btnTodosPresente = crearBtnTexto("Marcar Todos Presentes");
-  const btnTodosAusente = crearBtnTexto("Marcar Todos Ausentes");
-  const btnEnviarCorreos = crearBtnTexto("Enviar Correos", "btn-correos");
-  const btnGuardar = crearBtnTexto("Guardar Asistencia", "btn-guardar");
+  barra.querySelectorAll(".btn-todos")[0].onclick = () => marcarTodos("presente");
+  barra.querySelectorAll(".btn-todos")[1].onclick = () => marcarTodos("ausente");
+  barra.querySelector(".btn-correos").onclick = enviarCorreosGrupo;
+  barra.querySelector(".btn-guardar").onclick = guardarAsistencia;
 
-  btnTodosPresente.onclick = () => marcarTodos("presente");
-  btnTodosAusente.onclick = () => marcarTodos("ausente");
-  btnEnviarCorreos.onclick = enviarCorreosGrupo;
-  btnGuardar.onclick = guardarAsistencia;
-
-  barra.append(btnTodosPresente, btnTodosAusente, btnEnviarCorreos, btnGuardar);
   cont.appendChild(barra);
+
+  const btnVolver = document.createElement("button");
+  btnVolver.className = "btn-volver";
+  btnVolver.textContent = "← Volver al Panel";
+  btnVolver.onclick = () => {
+    import("../admin/admin.js").then(mod => mod.cargarAdminPanel());
+  };
+  cont.appendChild(btnVolver);
+
   root.appendChild(cont);
-
-  // ============ FUNCIONES AUXILIARES ============
-  function crearBtn(txt, cls) {
-    const b = document.createElement("button");
-    b.textContent = txt;
-    b.className = cls;
-    return b;
-  }
-
-  function crearBtnTexto(txt, cls = "btn-todos") {
-    const b = document.createElement("button");
-    b.textContent = txt;
-    b.className = cls;
-    return b;
-  }
 
   function actualizarAsistencia(id, estado, tarde) {
     const hoy = new Date().toLocaleDateString();
-    const asistencias = JSON.parse(localStorage.getItem("asistencias") || {});
-    
+    const asistencias = JSON.parse(localStorage.getItem("asistencias") || "{}");
     if (!asistencias[id]) asistencias[id] = {};
     asistencias[id][hoy] = { estado, tarde };
-    
     localStorage.setItem("asistencias", JSON.stringify(asistencias));
     cargarEstudiantes();
   }
@@ -149,23 +118,16 @@ export function cargarEstudiantes() {
     const motivo = prompt(`Motivo de tardanza para ${estudiante.nombre}:`);
     if (motivo) {
       actualizarAsistencia(estudiante.id, "presente", true);
-      // Registrar el reporte
-      const reportes = JSON.parse(localStorage.getItem("reportes") || {});
+      const reportes = JSON.parse(localStorage.getItem("reportes") || "{}");
       if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
-      reportes[estudiante.id].push({
-        fecha: new Date().toISOString(),
-        tipo: "tardanza",
-        motivo
-      });
+      reportes[estudiante.id].push({ fecha: new Date().toISOString(), tipo: "tardanza", motivo });
       localStorage.setItem("reportes", JSON.stringify(reportes));
     }
   }
 
   function marcarTodos(estado) {
-    const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
-    estudiantes.forEach(est => {
-      actualizarAsistencia(est.id, estado, false);
-    });
+    const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
+    estudiantes.forEach(est => actualizarAsistencia(est.id, estado, false));
   }
 
   function guardarAsistencia() {
@@ -178,162 +140,118 @@ export function cargarEstudiantes() {
   function agregarAlumno() {
     const nombre = prompt("Nombre completo del alumno:");
     const correo = prompt("Correo electrónico:");
-    
     if (nombre && correo) {
-      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
+      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
       const nuevoId = estudiantes.length > 0 ? Math.max(...estudiantes.map(e => e.id)) + 1 : 1;
-      
-      estudiantes.push({
-        id: nuevoId,
-        nombre,
-        correo
-      });
-      
+      estudiantes.push({ id: nuevoId, nombre, correo });
       localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
       cargarEstudiantes();
     }
   }
 
-  async function confirmarEliminacion(estudiante) {
-    const password = prompt(`Para eliminar a ${estudiante.nombre}, ingrese su contraseña:`);
-    if (!password) return;
-
-    try {
-      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || []);
+  function confirmarEliminacion(estudiante) {
+    if (confirm(`¿Eliminar a ${estudiante.nombre} permanentemente?`)) {
+      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
       const nuevos = estudiantes.filter(e => e.id !== estudiante.id);
       localStorage.setItem("estudiantes", JSON.stringify(nuevos));
       cargarEstudiantes();
-    } catch (error) {
-      alert("Error al eliminar: " + error.message);
     }
   }
 
-  async function enviarCorreo(estudiante) {
+  function enviarCorreo(estudiante) {
     const motivo = prompt(`Motivo del correo a ${estudiante.nombre}:`);
-    if (!motivo) return;
-
-    try {
-      // Simulación de envío
-      alert(`Correo enviado a ${estudiante.nombre}`);
-      
-      // Registrar el envío
+    if (motivo) {
+      alert(`Correo enviado a ${estudiante.nombre}\nMotivo: ${motivo}`);
       const reportes = JSON.parse(localStorage.getItem("reportes") || "{}");
       if (!reportes[estudiante.id]) reportes[estudiante.id] = [];
-      reportes[estudiante.id].push({
-        fecha: new Date().toISOString(),
-        tipo: "correo",
-        motivo
-      });
+      reportes[estudiante.id].push({ fecha: new Date().toISOString(), tipo: "correo", motivo });
       localStorage.setItem("reportes", JSON.stringify(reportes));
-    } catch (error) {
-      alert("Error al enviar correo: " + error.message);
     }
   }
 
-  async function enviarCorreosGrupo() {
+  function enviarCorreosGrupo() {
     const motivo = prompt("Motivo del correo grupal:");
-    if (!motivo) return;
-
-    if (confirm(`¿Enviar correo a TODOS los alumnos?`)) {
-      try {
-        alert("Correos enviados a todos los alumnos");
-      } catch (error) {
-        alert("Error al enviar correos: " + error.message);
-      }
+    if (motivo && confirm("¿Enviar correo a TODOS los alumnos?")) {
+      alert(`Correos enviados a todos los alumnos\nMotivo: ${motivo}`);
     }
   }
 }
-
-// ============ FUNCIÓN DE UNIFORME (ROPA) ============
-export function cargarUniforme(estudiante) {
-  const root = document.querySelector("#root");
+function cargarUniforme(estudiante) {
+  const root = document.getElementById("root");
   root.innerHTML = "";
 
-  const cont = document.createElement("div");
-  cont.className = "uniforme-container";
-
   const hoy = new Date().toLocaleDateString();
-  const uniformes = JSON.parse(localStorage.getItem("uniformes") || {});
-  const uniformeActual = uniformes[estudiante.id]?.[hoy] || {
-    completo: true,
-    detalles: "",
-    partes: {
-      playera: true,
-      pantalon: true,
-      zapatos: true,
-      sueter: true,
-      corte_pelo: true
-    }
-  };
+  const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
 
-  const h3 = document.createElement("h3");
-  h3.textContent = `Uniforme de ${estudiante.nombre}`;
-  cont.appendChild(h3);
+  if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
+  let uniformeActual = uniformes[estudiante.id][hoy];
 
-  // Partes del uniforme a verificar
-  const partes = [
-    { id: "playera", label: "Playera" },
-    { id: "pantalon", label: "Pantalón" },
-    { id: "zapatos", label: "Zapatos" },
-    { id: "sueter", label: "Súeter" },
-    { id: "corte_pelo", label: "Corte de pelo" }
-  ];
+  if (!uniformeActual || typeof uniformeActual !== "object" || !uniformeActual.partes) {
+    uniformeActual = {
+      completo: false,
+      detalles: "",
+      partes: {
+        playera: false,
+        pantalon: false,
+        zapatos: false,
+        sueter: false,
+        corte_pelo: false
+      }
+    };
+  }
 
-  const grid = document.createElement("div");
-  grid.className = "uniforme-grid";
+  const cont = document.createElement("div");
+  cont.className = "asistencia-container";
 
-  partes.forEach(parte => {
-    const item = document.createElement("div");
-    item.className = "uniforme-item";
-    
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.id = `uniforme-${parte.id}`;
-    checkbox.checked = uniformeActual.partes[parte.id];
-    checkbox.onchange = () => {
-      uniformeActual.partes[parte.id] = checkbox.checked;
-      uniformeActual.completo = Object.values(uniformeActual.partes).every(v => v);
+  cont.innerHTML = `
+    <h2>Uniforme de ${estudiante.nombre}</h2>
+    <div class="uniforme-grid">
+      ${Object.entries({
+        playera: "Playera",
+        pantalon: "Pantalón",
+        zapatos: "Zapatos",
+        sueter: "Súeter",
+        corte_pelo: "Corte de pelo"
+      }).map(([id, label]) => `
+        <div class="uniforme-item">
+          <input type="checkbox" id="uniforme-${id}" ${uniformeActual.partes[id] ? "checked" : ""}>
+          <label for="uniforme-${id}">${label}</label>
+        </div>
+      `).join("")}
+    </div>
+
+    <label class="uniforme-label">Detalles adicionales:</label>
+    <textarea class="uniforme-detalles" placeholder="Detalles sobre el uniforme...">${uniformeActual.detalles}</textarea>
+
+    <div class="uniforme-botones">
+      <button class="btn-guardar">Guardar Uniforme</button>
+      <button class="btn-volver">← Volver</button>
+    </div>
+  `;
+
+  cont.querySelector(".btn-guardar").onclick = () => {
+    const detalles = cont.querySelector(".uniforme-detalles").value;
+    const partes = {
+      playera: cont.querySelector("#uniforme-playera").checked,
+      pantalon: cont.querySelector("#uniforme-pantalon").checked,
+      zapatos: cont.querySelector("#uniforme-zapatos").checked,
+      sueter: cont.querySelector("#uniforme-sueter").checked,
+      corte_pelo: cont.querySelector("#uniforme-corte_pelo").checked
     };
 
-    const label = document.createElement("label");
-    label.htmlFor = `uniforme-${parte.id}`;
-    label.textContent = parte.label;
-
-    item.append(checkbox, label);
-    grid.appendChild(item);
-  });
-
-  // Campo para detalles
-  const detallesLabel = document.createElement("label");
-  detallesLabel.textContent = "Detalles adicionales:";
-  detallesLabel.style.marginTop = "20px";
-  detallesLabel.style.display = "block";
-
-  const detalles = document.createElement("textarea");
-  detalles.placeholder = "Detalles sobre el uniforme...";
-  detalles.value = uniformeActual.detalles;
-  detalles.style.marginTop = "8px";
-
-  // Botones
-  const btnGuardar = document.createElement("button");
-  btnGuardar.className = "btn-guardar";
-  btnGuardar.textContent = "Guardar Uniforme";
-  btnGuardar.onclick = () => {
-    uniformeActual.detalles = detalles.value;
-    
     if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
-    uniformes[estudiante.id][hoy] = uniformeActual;
-    
+    uniformes[estudiante.id][hoy] = {
+      completo: Object.values(partes).every(v => v),
+      detalles,
+      partes
+    };
+
     localStorage.setItem("uniformes", JSON.stringify(uniformes));
     alert("Uniforme registrado correctamente");
     cargarEstudiantes();
   };
 
-  const btnVolver = document.createElement("button");
-  btnVolver.className = "btn-volver";
-  btnVolver.textContent = "Volver";
-  btnVolver.onclick = cargarEstudiantes;
+  cont.querySelector(".btn-volver").onclick = cargarEstudiantes;
 
-  cont.append(grid, detallesLabel, detalles, btnGuardar, btnVolver);
   root.appendChild(cont);
 }

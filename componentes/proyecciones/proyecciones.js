@@ -1,4 +1,4 @@
-export function cargarProyecciones(tipo) {
+export function cargarProyecciones(tipo, onVolver) {
   const container = document.createElement('div');
   container.className = 'proyecciones-container';
 
@@ -48,8 +48,9 @@ export function cargarProyecciones(tipo) {
   `;
 
   container.querySelector('.btn-volver').addEventListener('click', () => {
-    const event = new CustomEvent('cambiarVista', { detail: 'asistencia' });
-    document.dispatchEvent(event);
+    if (typeof onVolver === 'function') {
+      onVolver();
+    }
   });
 
   return container;
