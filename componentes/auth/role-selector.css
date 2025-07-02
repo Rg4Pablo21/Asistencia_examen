@@ -1,0 +1,46 @@
+.role-select-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .role-select-container h2 {
+    color: var(--primary);
+    margin-bottom: 30px;
+  }
+  
+  .btn-rol {
+    width: 100%;
+    max-width: 300px;
+    margin: 15px auto;
+    padding: 20px;
+    background: var(--dark-2);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+  }
+  
+  .btn-rol:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 195, 255, 0.2);
+  }
+  
+  .rol-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .rol-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+  
+  .rol-desc {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 5px;
+  }

@@ -1,124 +1,71 @@
-export function crearModal(titulo, contenido, acciones = []) {
-    const modal = document.createElement("div");
-    modal.className = "modal-overlay";
+export function crearModalCorreo(destinatario, tipo) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-correo';
   
-    const modalContent = document.createElement("div");
-    modalContent.className = "modal-content";
+  let titulo = '';
+  let camposAdicionales = '';
   
-    const modalHeader = document.createElement("div");
-    modalHeader.className = "modal-header";
-    modalHeader.innerHTML = `<h3>${titulo}</h3>`;
-  
-    const modalBody = document.createElement("div");
-    modalBody.className = "modal-body";
-    modalBody.appendChild(contenido);
-  
-    const modalFooter = document.createElement("div");
-    modalFooter.className = "modal-footer";
-  
-    acciones.forEach(accion => {
-      const btn = document.createElement("button");
-      btn.textContent = accion.texto;
-      btn.className = accion.estilo || "btn-modal";
-      btn.onclick = () => {
-        accion.onClick();
-        if (accion.cerrar !== false) {
-          document.body.removeChild(modal);
-        }
-      };
-      modalFooter.appendChild(btn);
-    });
-  
-    // Botón de cierre por defecto
-    const btnCerrar = document.createElement("button");
-    btnCerrar.className = "btn-modal-cerrar";
-    btnCerrar.innerHTML = "&times;";
-    btnCerrar.onclick = () => document.body.removeChild(modal);
-    modalHeader.appendChild(btnCerrar);
-  
-    modalContent.append(modalHeader, modalBody, modalFooter);
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
-  
-    return modal;
+  switch(tipo) {
+    case 'individual':
+      titulo = `Enviar correo a ${destinatario}`;
+      break;
+    case 'uniforme':
+      titulo = `Enviar reporte de uniforme a ${destinatario}`;
+      camposAdicionales = `
+        <div class="campo-modal">
+          <label>Falta específica:</label>
+          <select>
+            <option value="playera">Playera</option>
+            <option value="pantalon">Pantalón</option>
+            <option value="zapatos">Zapatos</option>
+            <option value="sueter">Suéter</option>
+            <option value="corte">Corte de pelo</option>
+          </select>
+        </div>
+      `;
+      break;
+    case 'grupal':
+      titulo = 'Enviar correo a todos los alumnos';
+      break;
   }
-  
-  // Estilos para el modal (añadir a index.css)
-  export const modalStyles = `
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    background: #1e1e1e;
-    border: 2px solid #00c3ff;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-  }
-  
-  .modal-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #444;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .modal-header h3 {
-    margin: 0;
-    color: #00c3ff;
-  }
-  
-  .modal-body {
-    padding: 20px;
-  }
-  
-  .modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid #444;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
-  .btn-modal {
-    padding: 8px 16px;
-    background: #00c3ff;
-    color: #000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .btn-modal:hover {
-    background: #0099cc;
-  }
-  
-  .btn-modal-cerrar {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0 0 0 15px;
-    line-height: 1;
-  }
-  
-  .btn-modal-cerrar:hover {
-    color: #00c3ff;
-  }
+
+  modal.innerHTML = `
+    <div class="modal-contenido">
+      <h3>${titulo}</h3>
+      ${camposAdicionales}
+      <div class="campo-modal">
+        <label>Asunto:</label>
+        <input type="text" class="input-asunto">
+      </div>
+      <div class="campo-modal">
+        <label>Mensaje:</label>
+        <textarea class="input-mensaje"></textarea>
+      </div>
+      <div class="modal-botones">
+        <button class="btn-enviar">Enviar</button>
+        <button class="btn-cancelar">Cancelar</button>
+      </div>
+    </div>
   `;
+
+  // Evento para cerrar el modal
+  modal.querySelector('.btn-cancelar').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  // Evento para enviar el correo
+  modal.querySelector('.btn-enviar').addEventListener('click', () => {
+    alert(`Correo enviado a ${destinatario || 'todos los alumnos'}`);
+    modal.remove();
+  });
+
+  // Cerrar al hacer clic fuera del contenido
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  document.body.appendChild(modal);
+  return modal;
+}

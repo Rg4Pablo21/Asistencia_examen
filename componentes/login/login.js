@@ -1,7 +1,7 @@
-
 import { cargarMainApp } from "../../index.js";
+import { mostrarSelectorRol } from "../auth/role-selector.js";
 
-export function cargarLogin() {
+export function cargarLogin(rol) {
   const root = document.getElementById("root");
   root.innerHTML = "";
 
@@ -12,200 +12,129 @@ export function cargarLogin() {
   box.className = "form-box";
 
   const title = document.createElement("h2");
-  title.textContent = "Iniciar sesión";
+  title.textContent = `Iniciar sesión como ${rol === 'admin' ? 'Administrador' : 'Maestro'}`;
 
   const email = crearInput("email", "Correo electrónico", "loginEmail");
   const pass = crearInput("password", "Contraseña", "loginPassword");
 
   const btnLogin = crearBoton("Iniciar sesión", "loginBtn");
   const btnForgot = crearLink("¿Olvidaste tu contraseña?", "forgotPasswordBtn");
-  const btnRegister = crearLink("¿No tienes cuenta? Regístrate", "registerBtn");
+  const btnBack = crearLink("Volver a selección de rol", "backToRolesBtn");
 
   const error = document.createElement("p");
   error.id = "loginError";
   error.className = "error-message hidden";
 
-  box.append(title, email, pass, btnLogin, btnForgot, btnRegister, error);
+  box.append(title, email, pass, btnLogin, btnForgot, btnBack, error);
   container.appendChild(box);
   root.appendChild(container);
 
-  btnLogin.addEventListener("click", login);
+  btnLogin.addEventListener("click", () => login(rol));
   btnForgot.addEventListener("click", cargarRecuperarClave);
-  btnRegister.addEventListener("click", cargarRegistro);
-}
+  btnBack.addEventListener("click", mostrarSelectorRol);
 
-/* -------- utilidades -------- */
-function crearInput(type, placeholder, id) {
-  const input = document.createElement("input");
-  input.type = type;
-  input.placeholder = placeholder;
-  if (id) input.id = id;
-  return input;
-}
-
-function crearBoton(text, id) {
-  const btn = document.createElement("button");
-  btn.textContent = text;
-  if (id) btn.id = id;
-  return btn;
-}
-
-function crearLink(text, id) {
-  const link = document.createElement("a");
-  link.textContent = text;
-  link.href = "#";
-  if (id) link.id = id;
-  return link;
-}
-
-/* ---------------- Login ---------------- */
-function login() {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
-
-  if (!email || !password) {
-    showError("Completa ambos campos");
-    return;
+  function crearInput(type, placeholder, id) {
+    const input = document.createElement("input");
+    input.type = type;
+    input.placeholder = placeholder;
+    if (id) input.id = id;
+    return input;
   }
 
-  fetch("http://localhost:3000/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ correo: email, password: password }), // Cambié 'contraseña' por 'password'
-  })
-    .then((res) => {
-      if (!res.ok) throw res;
-      return res.json();
-    })
-    .then((data) => {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("nombre", data.nombre); // ← corregido
-      cargarMainApp();
-    })
-    .catch(async (err) => {
-      let msg = "Error al iniciar sesión";
-      if (err.json) {
-        const errData = await err.json();
-        msg = errData.mensaje || msg;
+  function crearBoton(text, id) {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    if (id) btn.id = id;
+    return btn;
+  }
+
+  function crearLink(text, id) {
+    const link = document.createElement("a");
+    link.textContent = text;
+    link.href = "#";
+    if (id) link.id = id;
+    return link;
+  }
+
+  function login(rol) {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    if (!email || !password) {
+      showError("Completa ambos campos");
+      return;
+    }
+
+    localStorage.setItem("token", "simulated-token");
+    localStorage.setItem("userRol", rol);
+    localStorage.setItem("userEmail", email);
+    cargarMainApp(rol);
+  }
+
+  function showError(msg) {
+    const p = document.getElementById("loginError");
+    p.textContent = msg;
+    p.classList.remove("hidden");
+  }
+
+  function cargarRecuperarClave(e) {
+    e.preventDefault();
+    root.innerHTML = "";
+
+    const container = document.createElement("div");
+    container.className = "login-container";
+
+    const box = document.createElement("div");
+    box.className = "form-box";
+
+    const title = document.createElement("h2");
+    title.textContent = "Restablecer contraseña";
+
+    const email = crearInput("email", "Correo electrónico", "recoveryEmail");
+    const nuevaPass = crearInput("password", "Nueva contraseña", "recoveryPass");
+    const confirmarPass = crearInput("password", "Confirmar contraseña", "recoveryPass2");
+
+    const error = document.createElement("p");
+    error.id = "recoveryError";
+    error.className = "error-message hidden";
+
+    const btn = crearBoton("Restablecer");
+    const back = crearLink("Volver al login");
+
+    box.append(title, email, nuevaPass, confirmarPass, btn, back, error);
+    container.appendChild(box);
+    root.appendChild(container);
+
+    back.addEventListener("click", () => cargarLogin(rol));
+
+    btn.addEventListener("click", () => {
+      const correo = email.value.trim();
+      const nueva = nuevaPass.value.trim();
+      const confirm = confirmarPass.value.trim();
+
+      if (!correo || !nueva || !confirm) {
+        mostrarErrorRecovery("Completa todos los campos");
+        return;
       }
-      showError(msg);
+
+      if (nueva.length < 6) {
+        mostrarErrorRecovery("La contraseña debe tener al menos 6 caracteres");
+        return;
+      }
+
+      if (nueva !== confirm) {
+        mostrarErrorRecovery("Las contraseñas no coinciden");
+        return;
+      }
+
+      alert(`Se ha restablecido la contraseña para ${correo}`);
+      cargarLogin(rol);
     });
+
+    function mostrarErrorRecovery(msg) {
+      const p = document.getElementById("recoveryError");
+      p.textContent = msg;
+      p.classList.remove("hidden");
+    }
+  }
 }
-
-function showError(msg) {
-  const p = document.getElementById("loginError");
-  p.textContent = msg;
-  p.classList.remove("hidden");
-}
-
-/* -------------- Recuperar contraseña -------------- */
-function cargarRecuperarClave(e) {
-  e.preventDefault();
-  const root = document.getElementById("root");
-  root.innerHTML = "";
-
-  const container = document.createElement("div");
-  container.className = "login-container";
-
-  const box = document.createElement("div");
-  box.className = "form-box";
-
-  const title = document.createElement("h2");
-  title.textContent = "Restablecer contraseña";
-
-  const email = crearInput("email", "Correo electrónico", "recoveryEmail");
-  const btn = crearBoton("Enviar correo");
-  const back = crearBoton("Volver");
-  back.style.marginTop = "8px";
-
-  box.append(title, email, btn, back);
-  container.appendChild(box);
-  root.appendChild(container);
-
-  back.addEventListener("click", cargarLogin);
-
-  btn.addEventListener("click", () => {
-    const correo = email.value.trim();
-    if (!correo) return alert("Ingresa tu correo");
-
-    fetch("http://localhost:3000/recover", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ correo }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        alert(data.message || "Revisa tu correo para la nueva contraseña");
-        cargarLogin();
-      })
-      .catch((err) => alert("Error al enviar solicitud: " + err.message));
-  });
-}
-
-/* ---------------- Registro ---------------- */
-function cargarRegistro(e) {
-  e.preventDefault();
-  const root = document.getElementById("root");
-  root.innerHTML = "";
-
-  const container = document.createElement("div");
-  container.className = "login-container";
-
-  const box = document.createElement("div");
-  box.className = "form-box";
-
-  const title = document.createElement("h2");
-  title.textContent = "Crear cuenta";
-
-  const nombre = crearInput("text", "Nombre completo", "nombre"); // Nuevo campo
-  const email = crearInput("email", "Correo electrónico", "correo");
-  const pass1 = crearInput("password", "Contraseña", "password1");
-  const pass2 = crearInput("password", "Repite la contraseña", "password2");
-  const btnRegister = crearBoton("Registrar");
-  const back = crearBoton("Volver");
-  back.style.marginTop = "8px";
-
-  box.append(title, nombre, email, pass1, pass2, btnRegister, back);
-  container.appendChild(box);
-  root.appendChild(container);
-
-  back.addEventListener("click", cargarLogin);
-
-  btnRegister.addEventListener("click", () => {
-    const nombreValue = nombre.value.trim(); // Obtener el nombre
-    const correoValue = email.value.trim();
-    const passValue = pass1.value.trim();
-    const passConfirm = pass2.value.trim();
-
-    if (!nombreValue || !correoValue || !passValue || !passConfirm)
-      return alert("Por favor completa todos los campos");
-    if (passValue !== passConfirm)
-      return alert("Las contraseñas no coinciden");
-
-    const user = {
-      nombre: nombreValue, // Ahora se envía el nombre
-      correo: correoValue,
-      password: passValue,
-    };
-
-    fetch("http://localhost:3000/register", { // ← ruta corregida
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Usuario registrado con éxito");
-          cargarLogin();
-        } else {
-          alert("Error: " + data.message);
-        }
-      })
-      .catch((err) =>
-        alert("Hubo un error al registrar el usuario: " + err.message)
-      );
-  });
-}
-
-
