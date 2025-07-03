@@ -19,18 +19,20 @@ export function cargarLogin(rol) {
 
   const btnLogin = crearBoton("Iniciar sesión", "loginBtn");
   const btnForgot = crearLink("¿Olvidaste tu contraseña?", "forgotPasswordBtn");
+  const btnRegister = crearLink("¿No tienes cuenta? Regístrate", "registerBtn");
   const btnBack = crearLink("Volver a selección de rol", "backToRolesBtn");
 
   const error = document.createElement("p");
   error.id = "loginError";
   error.className = "error-message hidden";
 
-  box.append(title, email, pass, btnLogin, btnForgot, btnBack, error);
+  box.append(title, email, pass, btnLogin, btnForgot, btnRegister, btnBack, error);
   container.appendChild(box);
   root.appendChild(container);
 
   btnLogin.addEventListener("click", () => login(rol));
   btnForgot.addEventListener("click", cargarRecuperarClave);
+  btnRegister.addEventListener("click", () => cargarRegistro(rol));
   btnBack.addEventListener("click", mostrarSelectorRol);
 
   function crearInput(type, placeholder, id) {
@@ -56,6 +58,12 @@ export function cargarLogin(rol) {
     return link;
   }
 
+  function showError(msg) {
+    const p = document.getElementById("loginError");
+    p.textContent = msg;
+    p.classList.remove("hidden");
+  }
+
   function login(rol) {
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value.trim();
@@ -69,12 +77,6 @@ export function cargarLogin(rol) {
     localStorage.setItem("userRol", rol);
     localStorage.setItem("userEmail", email);
     cargarMainApp(rol);
-  }
-
-  function showError(msg) {
-    const p = document.getElementById("loginError");
-    p.textContent = msg;
-    p.classList.remove("hidden");
   }
 
   function cargarRecuperarClave(e) {
@@ -133,6 +135,68 @@ export function cargarLogin(rol) {
 
     function mostrarErrorRecovery(msg) {
       const p = document.getElementById("recoveryError");
+      p.textContent = msg;
+      p.classList.remove("hidden");
+    }
+  }
+
+  function cargarRegistro(rol) {
+    root.innerHTML = "";
+
+    const container = document.createElement("div");
+    container.className = "login-container";
+
+    const box = document.createElement("div");
+    box.className = "form-box";
+
+    const title = document.createElement("h2");
+    title.textContent = "Registro de " + (rol === 'admin' ? 'Administrador' : 'Maestro');
+
+    const nombre = crearInput("text", "Nombre completo", "registerName");
+    const email = crearInput("email", "Correo electrónico", "registerEmail");
+    const pass1 = crearInput("password", "Contraseña", "registerPass");
+    const pass2 = crearInput("password", "Confirmar contraseña", "registerPass2");
+
+    const error = document.createElement("p");
+    error.id = "registerError";
+    error.className = "error-message hidden";
+
+    const btn = crearBoton("Registrarse");
+    const back = crearLink("¿Ya tienes cuenta? Inicia sesión");
+
+    box.append(title, nombre, email, pass1, pass2, btn, back, error);
+    container.appendChild(box);
+    root.appendChild(container);
+
+    back.addEventListener("click", () => cargarLogin(rol));
+
+    btn.addEventListener("click", () => {
+      const nom = nombre.value.trim();
+      const correo = email.value.trim();
+      const pass = pass1.value.trim();
+      const confirm = pass2.value.trim();
+
+      if (!nom || !correo || !pass || !confirm) {
+        mostrarErrorRegistro("Completa todos los campos");
+        return;
+      }
+
+      if (pass.length < 6) {
+        mostrarErrorRegistro("La contraseña debe tener al menos 6 caracteres");
+        return;
+      }
+
+      if (pass !== confirm) {
+        mostrarErrorRegistro("Las contraseñas no coinciden");
+        return;
+      }
+
+      alert(`Registro exitoso para ${nom}`);
+      cargarLogin(rol);
+    });
+
+    function mostrarErrorRegistro(msg) {
+      const p = document.getElementById("registerError");
       p.textContent = msg;
       p.classList.remove("hidden");
     }
