@@ -105,6 +105,32 @@ export function cargarEstudiantes() {
 
   root.appendChild(cont);
 
+  function agregarAlumno() {
+    const nombre = prompt("Nombre completo del alumno:");
+    const correo = prompt("Correo electrónico:");
+    if (nombre && correo) {
+      const nuevoEstudiante = { nombre, correo };
+
+      fetch("http://localhost:3000/api/estudiantes/agregar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(nuevoEstudiante)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Estudiante agregado con éxito.");
+          cargarEstudiantes();  // Recargar la lista de estudiantes
+        } else {
+          alert("Error al agregar estudiante.");
+        }
+      })
+      .catch(error => console.error('Error al agregar estudiante:', error));
+    }
+  }
+
   function actualizarAsistencia(id, estado, tarde) {
     const hoy = new Date().toLocaleDateString();
     const asistencias = JSON.parse(localStorage.getItem("asistencias") || "{}");
@@ -137,15 +163,10 @@ export function cargarEstudiantes() {
     cargarEstudiantes();
   }
 
-  function agregarAlumno() {
-    const nombre = prompt("Nombre completo del alumno:");
-    const correo = prompt("Correo electrónico:");
-    if (nombre && correo) {
-      const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
-      const nuevoId = estudiantes.length > 0 ? Math.max(...estudiantes.map(e => e.id)) + 1 : 1;
-      estudiantes.push({ id: nuevoId, nombre, correo });
-      localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
-      cargarEstudiantes();
+  function enviarCorreosGrupo() {
+    const motivo = prompt("Motivo del correo grupal:");
+    if (motivo && confirm("¿Enviar correo a TODOS los alumnos?")) {
+      alert(`Correos enviados a todos los alumnos\nMotivo: ${motivo}`);
     }
   }
 
@@ -169,89 +190,83 @@ export function cargarEstudiantes() {
     }
   }
 
-  function enviarCorreosGrupo() {
-    const motivo = prompt("Motivo del correo grupal:");
-    if (motivo && confirm("¿Enviar correo a TODOS los alumnos?")) {
-      alert(`Correos enviados a todos los alumnos\nMotivo: ${motivo}`);
-    }
-  }
-}
-function cargarUniforme(estudiante) {
-  const root = document.getElementById("root");
-  root.innerHTML = "";
+  function cargarUniforme(estudiante) {
+    const root = document.getElementById("root");
+    root.innerHTML = "";
 
-  const hoy = new Date().toLocaleDateString();
-  const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
-
-  if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
-  let uniformeActual = uniformes[estudiante.id][hoy];
-
-  if (!uniformeActual || typeof uniformeActual !== "object" || !uniformeActual.partes) {
-    uniformeActual = {
-      completo: false,
-      detalles: "",
-      partes: {
-        playera: false,
-        pantalon: false,
-        zapatos: false,
-        sueter: false,
-        corte_pelo: false
-      }
-    };
-  }
-
-  const cont = document.createElement("div");
-  cont.className = "asistencia-container";
-
-  cont.innerHTML = `
-    <h2>Uniforme de ${estudiante.nombre}</h2>
-    <div class="uniforme-grid">
-      ${Object.entries({
-        playera: "Playera",
-        pantalon: "Pantalón",
-        zapatos: "Zapatos",
-        sueter: "Súeter",
-        corte_pelo: "Corte de pelo"
-      }).map(([id, label]) => `
-        <div class="uniforme-item">
-          <input type="checkbox" id="uniforme-${id}" ${uniformeActual.partes[id] ? "checked" : ""}>
-          <label for="uniforme-${id}">${label}</label>
-        </div>
-      `).join("")}
-    </div>
-
-    <label class="uniforme-label">Detalles adicionales:</label>
-    <textarea class="uniforme-detalles" placeholder="Detalles sobre el uniforme...">${uniformeActual.detalles}</textarea>
-
-    <div class="uniforme-botones">
-      <button class="btn-guardar">Guardar Uniforme</button>
-      <button class="btn-volver">← Volver</button>
-    </div>
-  `;
-
-  cont.querySelector(".btn-guardar").onclick = () => {
-    const detalles = cont.querySelector(".uniforme-detalles").value;
-    const partes = {
-      playera: cont.querySelector("#uniforme-playera").checked,
-      pantalon: cont.querySelector("#uniforme-pantalon").checked,
-      zapatos: cont.querySelector("#uniforme-zapatos").checked,
-      sueter: cont.querySelector("#uniforme-sueter").checked,
-      corte_pelo: cont.querySelector("#uniforme-corte_pelo").checked
-    };
+    const hoy = new Date().toLocaleDateString();
+    const uniformes = JSON.parse(localStorage.getItem("uniformes") || "{}");
 
     if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
-    uniformes[estudiante.id][hoy] = {
-      completo: Object.values(partes).every(v => v),
-      detalles,
-      partes
+    let uniformeActual = uniformes[estudiante.id][hoy];
+
+    if (!uniformeActual || typeof uniformeActual !== "object" || !uniformeActual.partes) {
+      uniformeActual = {
+        completo: false,
+        detalles: "",
+        partes: {
+          playera: false,
+          pantalon: false,
+          zapatos: false,
+          sueter: false,
+          corte_pelo: false
+        }
+      };
+    }
+
+    const cont = document.createElement("div");
+    cont.className = "asistencia-container";
+
+    cont.innerHTML = `
+      <h2>Uniforme de ${estudiante.nombre}</h2>
+      <div class="uniforme-grid">
+        ${Object.entries({
+          playera: "Playera",
+          pantalon: "Pantalón",
+          zapatos: "Zapatos",
+          sueter: "Súeter",
+          corte_pelo: "Corte de pelo"
+        }).map(([id, label]) => `
+          <div class="uniforme-item">
+            <input type="checkbox" id="uniforme-${id}" ${uniformeActual.partes[id] ? "checked" : ""}>
+            <label for="uniforme-${id}">${label}</label>
+          </div>
+        `).join("")}
+      </div>
+
+      <label class="uniforme-label">Detalles adicionales:</label>
+      <textarea class="uniforme-detalles" placeholder="Detalles sobre el uniforme...">${uniformeActual.detalles}</textarea>
+
+      <div class="uniforme-botones">
+        <button class="btn-guardar">Guardar Uniforme</button>
+        <button class="btn-volver">← Volver</button>
+      </div>
+    `;
+
+    cont.querySelector(".btn-guardar").onclick = () => {
+      const detalles = cont.querySelector(".uniforme-detalles").value;
+      const partes = {
+        playera: cont.querySelector("#uniforme-playera").checked,
+        pantalon: cont.querySelector("#uniforme-pantalon").checked,
+        zapatos: cont.querySelector("#uniforme-zapatos").checked,
+        sueter: cont.querySelector("#uniforme-sueter").checked,
+        corte_pelo: cont.querySelector("#uniforme-corte_pelo").checked
+      };
+
+      if (!uniformes[estudiante.id]) uniformes[estudiante.id] = {};
+      uniformes[estudiante.id][hoy] = {
+        completo: Object.values(partes).every(v => v),
+        detalles,
+        partes
+      };
+
+      localStorage.setItem("uniformes", JSON.stringify(uniformes));
+      alert("Uniforme registrado correctamente");
+      cargarEstudiantes();
     };
 
-    localStorage.setItem("uniformes", JSON.stringify(uniformes));
-    alert("Uniforme registrado correctamente");
-    cargarEstudiantes();
-  };
+    cont.querySelector(".btn-volver").onclick = cargarEstudiantes;
 
-  cont.querySelector(".btn-volver").onclick = cargarEstudiantes;
-
-  root.appendChild(cont);
+    root.appendChild(cont);
+  }
 }

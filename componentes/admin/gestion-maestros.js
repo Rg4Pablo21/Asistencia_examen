@@ -1,73 +1,63 @@
-import { cargarAdminPanel } from "./admin.js";
+// gestion-maestros.js
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form-maestro");
+  const lista = document.getElementById("lista-maestros");
 
-export function cargarGestionMaestros() {
-  const root = document.getElementById("root");
-  root.innerHTML = "";
+  const cargarMaestros = () => {
+    const maestros = JSON.parse(localStorage.getItem("maestros")) || [];
+    lista.innerHTML = "";
 
-  const cont = document.createElement("div");
-  cont.className = "admin-container";
-
-  const h2 = document.createElement("h2");
-  h2.textContent = "Gestión de Maestros";
-  cont.appendChild(h2);
-
-  const btnAgregar = document.createElement("button");
-  btnAgregar.textContent = "➕ Agregar Maestro";
-  btnAgregar.className = "btn-agregar";
-  btnAgregar.onclick = agregarMaestro;
-  cont.appendChild(btnAgregar);
-
-  const lista = document.createElement("ul");
-  lista.className = "lista-maestros";
-
-  const maestros = JSON.parse(localStorage.getItem("maestros") || "[]");
-  if (maestros.length === 0) {
-    lista.innerHTML = "<p>No hay maestros registrados.</p>";
-  } else {
-    maestros.forEach((maestro) => {
+    maestros.forEach((maestro, index) => {
       const li = document.createElement("li");
       li.innerHTML = `
-        <strong>${maestro.nombre}</strong> (${maestro.correo})
-        <button class="btn-eliminar">🗑️</button>
+        <strong>${maestro.nombre}</strong> - ${maestro.usuario} 
+        <button class="eliminar" data-index="${index}">❌</button>
       `;
-      li.querySelector(".btn-eliminar").onclick = () => eliminarMaestro(maestro.id);
       lista.appendChild(li);
     });
-  }
-
-  cont.appendChild(lista);
-
-  const volver = document.createElement("button");
-  volver.textContent = "Volver";
-  volver.className = "btn-volver";
-  volver.onclick = () => {
-    cargarAdminPanel();
   };
-  cont.appendChild(volver);
 
-  root.appendChild(cont);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nombre = form.nombre.value.trim();
+    const usuario = form.usuario.value.trim();
+    const password = form.password.value.trim();
 
-  function agregarMaestro() {
-    const nombre = prompt("Nombre del maestro:");
-    const correo = prompt("Correo electrónico:");
-    if (!nombre || !correo) return;
+    if (!nombre || !usuario || !password) {
+      alert("Por favor llena todos los campos.");
+      return;
+    }
 
-    const maestros = JSON.parse(localStorage.getItem("maestros") || "[]");
-    const nuevo = {
-      id: Date.now(),
-      nombre,
-      correo
-    };
-    maestros.push(nuevo);
-    localStorage.setItem("maestros", JSON.stringify(maestros));
-    cargarGestionMaestros();
-  }
+    const nuevoMaestro = { nombre, usuario, password };
 
-  function eliminarMaestro(id) {
-    if (!confirm("¿Eliminar este maestro?")) return;
-    const maestros = JSON.parse(localStorage.getItem("maestros") || "[]");
-    const nuevos = maestros.filter(m => m.id !== id);
-    localStorage.setItem("maestros", JSON.stringify(nuevos));
-    cargarGestionMaestros();
-  }
-}
+    fetch("http://localhost:3000/api/maestros/agregar", { // Endpoint para agregar maestro
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(nuevoMaestro)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Maestro agregado con éxito.");
+        cargarMaestros();
+      } else {
+        alert("Error al agregar maestro.");
+      }
+    })
+    .catch(error => console.error('Error al agregar maestro:', error));
+  });
+
+  lista.addEventListener("click", (e) => {
+    if (e.target.classList.contains("eliminar")) {
+      const index = e.target.dataset.index;
+      const maestros = JSON.parse(localStorage.getItem("maestros")) || [];
+      maestros.splice(index, 1);
+      localStorage.setItem("maestros", JSON.stringify(maestros));
+      cargarMaestros();
+    }
+  });
+
+  cargarMaestros();
+});

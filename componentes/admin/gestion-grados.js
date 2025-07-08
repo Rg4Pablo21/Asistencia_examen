@@ -1,78 +1,51 @@
-import { cargarAdminPanel } from "./admin.js";
+// gestion-grados.js
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form-grado");
+  const lista = document.getElementById("lista-grados");
 
-export function cargarGestionGrados() {
-  const root = document.getElementById("root");
-  root.innerHTML = "";
+  const cargarGrados = () => {
+    const grados = JSON.parse(localStorage.getItem("grados")) || [];
+    lista.innerHTML = "";
 
-  const cont = document.createElement("div");
-  cont.className = "admin-container";
-
-  const h2 = document.createElement("h2");
-  h2.textContent = "Gestión de Grados";
-  cont.appendChild(h2);
-
-  const btnAgregar = document.createElement("button");
-  btnAgregar.textContent = "➕ Agregar Grado";
-  btnAgregar.className = "btn-agregar";
-  btnAgregar.onclick = agregarGrado;
-  cont.appendChild(btnAgregar);
-
-  const lista = document.createElement("ul");
-  lista.className = "lista-maestros";
-
-  const grados = JSON.parse(localStorage.getItem("grados") || "[]");
-  if (grados.length === 0) {
-    lista.innerHTML = "<p>No hay grados registrados.</p>";
-  } else {
-    grados.forEach((grado) => {
+    grados.forEach((grado, index) => {
       const li = document.createElement("li");
       li.innerHTML = `
-        <strong>${grado.nombre}</strong>
-        <button class="btn-ver-estudiantes">👀 Ver Alumnos</button>
-        <button class="btn-eliminar">🗑️</button>
+        <strong>${grado.nivel}</strong> - ${grado.grado} - ${grado.seccion}
+        <button class="eliminar" data-index="${index}">❌</button>
       `;
-      li.querySelector(".btn-ver-estudiantes").onclick = () => verAlumnosDeGrado(grado.nombre);
-      li.querySelector(".btn-eliminar").onclick = () => eliminarGrado(grado.nombre);
       lista.appendChild(li);
     });
-  }
-
-  cont.appendChild(lista);
-
-  const volver = document.createElement("button");
-  volver.textContent = "Volver";
-  volver.className = "btn-volver";
-  volver.onclick = () => {
-    cargarAdminPanel();
   };
-  cont.appendChild(volver);
 
-  root.appendChild(cont);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nivel = form.nivel.value.trim();
+    const grado = form.grado.value.trim();
+    const seccion = form.seccion.value.trim();
 
-  function agregarGrado() {
-    const nombre = prompt("Nombre del grado:");
-    if (!nombre) return;
+    if (!nivel || !grado || !seccion) {
+      alert("Todos los campos son obligatorios.");
+      return;
+    }
 
-    const grados = JSON.parse(localStorage.getItem("grados") || "[]");
-    grados.push({ nombre });
+    const nuevoGrado = { nivel, grado, seccion };
+    const grados = JSON.parse(localStorage.getItem("grados")) || [];
+
+    grados.push(nuevoGrado);
     localStorage.setItem("grados", JSON.stringify(grados));
-    cargarGestionGrados();
-  }
+    form.reset();
+    cargarGrados();
+  });
 
-  function eliminarGrado(nombre) {
-    if (!confirm("¿Eliminar este grado?")) return;
-    let grados = JSON.parse(localStorage.getItem("grados") || "[]");
-    grados = grados.filter(g => g.nombre !== nombre);
-    localStorage.setItem("grados", JSON.stringify(grados));
-    cargarGestionGrados();
-  }
+  lista.addEventListener("click", (e) => {
+    if (e.target.classList.contains("eliminar")) {
+      const index = e.target.dataset.index;
+      const grados = JSON.parse(localStorage.getItem("grados")) || [];
+      grados.splice(index, 1);
+      localStorage.setItem("grados", JSON.stringify(grados));
+      cargarGrados();
+    }
+  });
 
-  function verAlumnosDeGrado(nombreGrado) {
-    const estudiantes = JSON.parse(localStorage.getItem("estudiantes") || "[]");
-    const encontrados = estudiantes.filter(e => e.grado === nombreGrado);
-
-    alert(`Alumnos en "${nombreGrado}":\n\n` + (encontrados.length > 0
-      ? encontrados.map(e => `- ${e.nombre}`).join("\n")
-      : "No hay alumnos en este grado."));
-  }
-}
+  cargarGrados();
+});

@@ -6,6 +6,7 @@ import { cargarEstudiantes } from "./componentes/estudiante/estudiante.js";
 import { cargarProyecciones } from "./componentes/proyecciones/proyecciones.js";
 import { cargarAdminPanel } from "./componentes/admin/admin.js";
 
+
 document.addEventListener("DOMContentLoaded", startApp);
 
 function startApp() {

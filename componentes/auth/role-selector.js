@@ -1,34 +1,28 @@
 import { cargarLogin } from "../login/login.js";
 
 export function mostrarSelectorRol() {
-  const root = document.getElementById('root');
-  root.innerHTML = '';
+  const root = document.getElementById("root");
+  root.innerHTML = "";
 
-  const container = document.createElement('div');
-  container.className = 'role-select-container';
+  const container = document.createElement("div");
+  container.className = "role-selector-container";
 
-  const title = document.createElement('h2');
-  title.textContent = 'Seleccione su rol';
-  container.appendChild(title);
+  const h2 = document.createElement("h2");
+  h2.textContent = "Selecciona tu rol";
 
-  const btnMaestro = document.createElement('button');
-  btnMaestro.className = 'btn-rol maestro';
-  btnMaestro.innerHTML = `
-    <div class="rol-icon">👨‍🏫</div>
-    <div class="rol-title">Maestro</div>
-    <div class="rol-desc">Tomar asistencia y gestionar alumnos</div>
-  `;
-  btnMaestro.onclick = () => cargarLogin('maestro');
+  const btnAdmin = crearBoton("Administrador");
+  const btnMaestro = crearBoton("Maestro");
 
-  const btnAdmin = document.createElement('button');
-  btnAdmin.className = 'btn-rol admin';
-  btnAdmin.innerHTML = `
-    <div class="rol-icon">👨‍💼</div>
-    <div class="rol-title">Administrador</div>
-    <div class="rol-desc">Gestionar todo el sistema</div>
-  `;
-  btnAdmin.onclick = () => cargarLogin('admin');
-
-  container.append(btnMaestro, btnAdmin);
+  container.append(h2, btnAdmin, btnMaestro);
   root.appendChild(container);
+
+  btnAdmin.addEventListener("click", () => cargarLogin("admin"));
+  btnMaestro.addEventListener("click", () => cargarLogin("maestro"));
+
+  function crearBoton(texto) {
+    const btn = document.createElement("button");
+    btn.textContent = texto;
+    btn.className = "role-btn";
+    return btn;
+  }
 }
