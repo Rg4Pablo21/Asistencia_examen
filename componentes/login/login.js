@@ -64,7 +64,7 @@ export function cargarLogin(rol) {
     p.classList.remove("hidden");
   }
 
-  function login(rol) {
+  async function login(rol) {
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value.trim();
 
@@ -73,10 +73,29 @@ export function cargarLogin(rol) {
       return;
     }
 
-    localStorage.setItem("token", "simulated-token");
-    localStorage.setItem("userRol", rol);
-    localStorage.setItem("userEmail", email);
-    cargarMainApp(rol);
+    try {
+      const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.message || "Error al iniciar sesión");
+        return;
+      }
+
+      // Guardar token y datos del usuario
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userRol", rol);
+      localStorage.setItem("userEmail", email);
+
+      cargarMainApp(rol);
+    } catch (err) {
+      showError("Error al conectar con el servidor");
+    }
   }
 
   function cargarRecuperarClave(e) {
@@ -170,7 +189,7 @@ export function cargarLogin(rol) {
 
     back.addEventListener("click", () => cargarLogin(rol));
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const nom = nombre.value.trim();
       const correo = email.value.trim();
       const pass = pass1.value.trim();
@@ -191,8 +210,25 @@ export function cargarLogin(rol) {
         return;
       }
 
-      alert(`Registro exitoso para ${nom}`);
-      cargarLogin(rol);
+      try {
+        const res = await fetch("http://localhost:3000/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre: nom, email: correo, password: pass, rol })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarErrorRegistro(data.message || "Error en el registro");
+          return;
+        }
+
+        alert(`Registro exitoso para ${nom}`);
+        cargarLogin(rol);
+      } catch (err) {
+        mostrarErrorRegistro("Error al conectar con el servidor");
+      }
     });
 
     function mostrarErrorRegistro(msg) {

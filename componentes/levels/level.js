@@ -24,13 +24,19 @@ export function cargarNiveles(callbackSeleccion) {
   seccionSelect.innerHTML = '<option value="">Seleccione una sección</option>';
   seccionSelect.disabled = true;
 
-  // Llenar niveles
-  Object.keys(niveles).forEach(nivel => {
-    const option = document.createElement("option");
-    option.value = nivel;
-    option.textContent = nivel;
-    nivelSelect.appendChild(option);
-  });
+  // Llenar niveles desde el backend
+  fetch('http://localhost:3000/api/niveles')
+    .then(response => response.json())
+    .then(data => {
+      console.log("Niveles recibidos:", data);
+      data.forEach(nivel => {
+        const option = document.createElement("option");
+        option.value = nivel.id; // Usamos el id del nivel
+        option.textContent = nivel.nombre; // Mostramos el nombre del nivel
+        nivelSelect.appendChild(option);
+      });
+    })
+    .catch(err => console.error('Error al cargar los niveles:', err));
 
   // Event listeners
   nivelSelect.addEventListener("change", (e) => {
@@ -39,26 +45,40 @@ export function cargarNiveles(callbackSeleccion) {
     seccionSelect.disabled = true;
 
     if (e.target.value) {
-      niveles[e.target.value].forEach(grado => {
-        const option = document.createElement("option");
-        option.value = grado;
-        option.textContent = grado;
-        gradoSelect.appendChild(option);
-      });
-      gradoSelect.disabled = false;
+      // Cargar grados al seleccionar un nivel
+      fetch(`http://localhost:3000/api/grados/${e.target.value}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("Grados recibidos:", data);
+          data.forEach(grado => {
+            const option = document.createElement("option");
+            option.value = grado.id; // Usamos el id del grado
+            option.textContent = grado.nombre; // Mostramos el nombre del grado
+            gradoSelect.appendChild(option);
+          });
+          gradoSelect.disabled = false;
+        })
+        .catch(err => console.error('Error al cargar los grados:', err));
     }
   });
 
   gradoSelect.addEventListener("change", () => {
     seccionSelect.innerHTML = '<option value="">Seleccione una sección</option>';
     if (gradoSelect.value) {
-      ["A", "B", "C"].forEach(seccion => {
-        const option = document.createElement("option");
-        option.value = seccion;
-        option.textContent = `Sección ${seccion}`;
-        seccionSelect.appendChild(option);
-      });
-      seccionSelect.disabled = false;
+      // Cargar secciones al seleccionar un grado
+      fetch(`http://localhost:3000/api/secciones/${gradoSelect.value}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("Secciones recibidas:", data);
+          data.forEach(seccion => {
+            const option = document.createElement("option");
+            option.value = seccion.id; // Usamos el id de la sección
+            option.textContent = `Sección ${seccion.nombre}`; // Mostramos el nombre de la sección
+            seccionSelect.appendChild(option);
+          });
+          seccionSelect.disabled = false;
+        })
+        .catch(err => console.error('Error al cargar las secciones:', err));
     }
   });
 
