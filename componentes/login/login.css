@@ -1,122 +1,121 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 40px);
+  padding: 20px;
+}
+
+/* Caja de formulario */
+.form-box {
+  background-color: var(--dark-2);
+  padding: 24px 24px;               /* reducido el padding para que no se alargue tanto */
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
+  width: 100%;
+  max-width: 380px;                 /* un poco más delgado, se ve mejor */
+  text-align: center;              /* centra el texto como los botones e inputs */
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+
+.form-box h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+}
+
+/* Inputs */
+.form-box input {
+  width: 90%;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  border: 2px solid var(--primary);
+  background: transparent;
+  border-radius: var(--radius);
+  color: #fff;
+  transition: border-color .3s;
+}
+
+.form-box input:focus {
+  outline: none;
+  border-color: var(--primary-alt);
+}
+
+/* Botones y enlaces */
+.form-box button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-alt));
+  border: none;
+  border-radius: var(--radius);
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  transition: transform .25s;
+}
+
+.form-box button:hover {
+  transform: scale(1.03);
+}
+
+.form-box a {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.error-message {
+  color: var(--danger);
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+
+
+
+.form-box h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.form-box button {
+  margin-top: 12px;
+}
+
+.form-box a {
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+
+.form-box p.error-message {
+  margin-top: 12px;
+  text-align: center;
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
   .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: calc(100vh - 40px);
-      padding: 20px;
-    }
-    
-    /* Caja de formulario */
-    .form-box {
-      background-color: var(--dark-2);
-      padding: 24px 24px;               /* reducido el padding para que no se alargue tanto */
-      border: 2px solid var(--primary);
-      border-radius: var(--radius);
-      box-shadow: 0 0 25px rgba(0, 212, 255, 0.12);
-      width: 100%;
-      max-width: 380px;                 /* un poco más delgado, se ve mejor */
-      text-align: center;              /* centra el texto como los botones e inputs */
-      box-sizing: border-box;
-      margin: 0 auto;
-    }
-    
-    
-    .form-box h2 {
-      margin-bottom: 24px;
-      font-size: 24px;
-    }
-    
-    /* Inputs */
-    .form-box input {
-      width: 90%;
-      padding: 12px 16px;
-      margin-bottom: 18px;
-      border: 2px solid var(--primary);
-      background: transparent;
-      border-radius: var(--radius);
-      color: #fff;
-      transition: border-color .3s;
-    }
-    
-    .form-box input:focus {
-      outline: none;
-      border-color: var(--primary-alt);
-    }
-    
-    /* Botones y enlaces */
-    .form-box button {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(90deg, var(--primary), var(--primary-alt));
-      border: none;
-      border-radius: var(--radius);
-      font-weight: bold;
-      color: #000;
-      cursor: pointer;
-      transition: transform .25s;
-    }
-    
-    .form-box button:hover {
-      transform: scale(1.03);
-    }
-    
-    .form-box a {
-      display: block;
-      margin-top: 12px;
-      text-align: center;
-      color: var(--primary);
-      font-size: 14px;
-    }
-    
-    .error-message {
-      color: var(--danger);
-      margin-top: 6px;
-      font-weight: bold;
-    }
+    padding: 20px; /* un poco más que en móvil */
+  }
 
+  .form-box {
+    max-width: 420px; /* o algo menor si quieres */
+    padding: 30px; /* un poco menos que en escritorio pero más que móvil */
+    margin: 30px auto;
+    box-sizing: border-box;
+  }
 
+  .form-box input {
+    font-size: 1rem; /* tamaño legible pero no tan grande */
+  }
 
-
-    .form-box h2 {
-      margin-bottom: 24px;
-      font-size: 24px;
-      text-align: center;
-    }
-    
-    .form-box button {
-      margin-top: 12px;
-    }
-    
-    .form-box a {
-      margin-top: 10px;
-      display: block;
-      text-align: center;
-    }
-    
-    .form-box p.error-message {
-      margin-top: 12px;
-      text-align: center;
-    }
-
-    @media (min-width: 601px) and (max-width: 900px) {
-      .login-container {
-        padding: 20px; /* un poco más que en móvil */
-      }
-    
-      .form-box {
-        max-width: 420px; /* o algo menor si quieres */
-        padding: 30px; /* un poco menos que en escritorio pero más que móvil */
-        margin: 30px auto;
-        box-sizing: border-box;
-      }
-    
-      .form-box input {
-        font-size: 1rem; /* tamaño legible pero no tan grande */
-      }
-    
-      .form-box button {
-        font-size: 1rem;
-        padding: 14px;
-      }
-    }
-    
+  .form-box button {
+    font-size: 1rem;
+    padding: 14px;
+  }
+}
