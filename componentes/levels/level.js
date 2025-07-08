@@ -25,7 +25,7 @@ export function cargarNiveles(callbackSeleccion) {
   seccionSelect.disabled = true;
 
   // Llenar niveles desde el backend
-  fetch('http://localhost:3000/api/niveles')
+  fetch('https://backend-examen-labo.onrender.com')
     .then(response => response.json())
     .then(data => {
       console.log("Niveles recibidos:", data);
@@ -46,7 +46,7 @@ export function cargarNiveles(callbackSeleccion) {
 
     if (e.target.value) {
       // Cargar grados al seleccionar un nivel
-      fetch(`http://localhost:3000/api/grados/${e.target.value}`)
+      fetch(`https://backend-examen-labo.onrender.com/api/grados/${e.target.value}`)
         .then(response => response.json())
         .then(data => {
           console.log("Grados recibidos:", data);
@@ -66,7 +66,7 @@ export function cargarNiveles(callbackSeleccion) {
     seccionSelect.innerHTML = '<option value="">Seleccione una sección</option>';
     if (gradoSelect.value) {
       // Cargar secciones al seleccionar un grado
-      fetch(`http://localhost:3000/api/secciones/${gradoSelect.value}`)
+      fetch(`https://backend-examen-labo.onrender.com/api/secciones/${gradoSelect.value}`)
         .then(response => response.json())
         .then(data => {
           console.log("Secciones recibidas:", data);
